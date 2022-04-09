@@ -1,3 +1,5 @@
+#include "history_dag_node.hpp"
+
 #include <iostream>
 #include <numeric>
 #include <random>
@@ -18,7 +20,7 @@ void GenerateParents(HistoryDAG& dag,
 				dag.GetNode({children[i + 1]}), 0);
 		} else {
 			dag.AddEdge({dag.GetEdges().size()}, parent,
-				dag.GetNode({children[i - 1]}), 0);
+				dag.GetNode({children[i - 1]}), 1);
 		}
 		parents.push_back(parent.GetId().value);
 	}
@@ -86,20 +88,19 @@ void PrintDag(HistoryDAG& dag) {
 void ToDOT(HistoryDAG& dag, std::ostream& out) {
 	out << "digraph {\n";
 	for (auto i : dag.GetEdges()) {
-		std::string parent, child;
+		std::string parent = std::to_string(i.GetParent().GetId().value);
+		std::string child = std::to_string(i.GetChild().GetId().value);
 		if (!i.GetParent().GetSequence().empty()) {
-			parent = std::string(i.GetParent().GetSequence().begin(),
+			parent += ": ";
+			parent += std::string(i.GetParent().GetSequence().begin(),
 				i.GetParent().GetSequence().end());
-		} else {
-			parent = std::to_string(i.GetParent().GetId().value);
 		}
 		if (!i.GetChild().GetSequence().empty()) {
-			child = std::string(i.GetChild().GetSequence().begin(),
+			child += ": ";
+			child += std::string(i.GetChild().GetSequence().begin(),
 				i.GetChild().GetSequence().end());
-		} else {
-			child = std::to_string(i.GetChild().GetId().value);
 		}
-		out << "  " << parent << " -> " << child << "\n";
+		out << "  \"" << parent << "\" -> \"" << child << "\"\n";
 	}
 	out << "}\n";
 }
@@ -111,6 +112,15 @@ int main() {
 	});
 	
 	ToDOT(dag, std::cout);
+	
+	for (auto i : dag.GetNodes()) {
+		std::cout << "Node: " << i.GetId().value << "\n";
+		for (auto j : i.GetChildren()) {
+			std::ignore = j;
+			//std::cout << j.GetId().value << " ";
+		}
+		std::cout << "\n";
+	}
 	
 	std::cout << "Done.\n";
 	return 0;

@@ -1,0 +1,108 @@
+#pragma once
+
+#include <utility>
+#include <cstddef>
+#include <iterator>
+
+template <typename Storage, typename Transform>
+class Collection {
+public:
+
+	Collection(Storage& data, Transform&& transform);
+	
+	using Iter = decltype(std::declval<Storage>().begin());
+
+	class Iterator {
+	public:
+		using iterator_category = std::forward_iterator_tag;
+		using size_type = std::size_t;
+		using difference_type = std::ptrdiff_t;
+		using value_type = std::decay_t<decltype(*std::declval<Iter>())>;
+		using pointer = value_type*;
+		using reference = value_type&;
+		using const_pointer = const pointer;
+		using const_reference = const reference;
+	
+		Iterator(Iter iter, Collection& collection);
+		auto operator*() const;
+		Iterator& operator++();
+		Iterator operator++(int);
+		bool operator==(const Iterator& other) const;
+		bool operator!=(const Iterator& other) const;
+	private:
+		Iter iter_;
+		Collection& collection_;
+	};
+	
+	Iterator begin();
+	Iterator end();
+	size_t size() const;
+	bool empty() const;
+	
+private:
+	friend class Iterator;
+	Storage& data_;
+	Transform transform_;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+template <typename Storage, typename Transform>
+Collection<Storage, Transform>::Collection(Storage& data,
+	Transform&& transform) : data_{data}, transform_{transform} {}
+
+template <typename Storage, typename Transform>
+Collection<Storage, Transform>::Iterator::Iterator(Iter iter,
+	Collection& collection) : iter_{iter}, collection_{collection} {}
+
+template <typename Storage, typename Transform>
+auto Collection<Storage, Transform>::Iterator::operator*() const {
+	return collection_.transform_(*iter_, iter_ - collection_.data_.begin());
+}
+
+template <typename Storage, typename Transform>
+typename Collection<Storage, Transform>::Iterator&
+Collection<Storage, Transform>::Iterator::operator++() {
+	++iter_;
+	return *this;
+}
+
+template <typename Storage, typename Transform>
+typename Collection<Storage, Transform>::Iterator
+Collection<Storage, Transform>::Iterator::operator++(int) {
+	return {iter_++, collection_};
+}
+
+template <typename Storage, typename Transform>
+bool Collection<Storage, Transform>::Iterator::operator==(
+	const Iterator& other) const {
+	return iter_ == other.iter_;
+}
+
+template <typename Storage, typename Transform>
+bool Collection<Storage, Transform>::Iterator::operator!=(
+	const Iterator& other) const {
+	return iter_ != other.iter_;
+}
+
+template <typename Storage, typename Transform>
+typename Collection<Storage, Transform>::Iterator
+Collection<Storage, Transform>::begin() {
+	return {data_.begin(), *this};
+}
+
+template <typename Storage, typename Transform>
+typename Collection<Storage, Transform>::Iterator
+Collection<Storage, Transform>::end() {
+	return {data_.end(), *this};
+}
+
+template <typename Storage, typename Transform>
+size_t Collection<Storage, Transform>::size() const {
+	return data_.size();
+}
+
+template <typename Storage, typename Transform>
+bool Collection<Storage, Transform>::empty() const {
+	return data_.empty();
+}
