@@ -1,5 +1,6 @@
 #include <type_traits>
 #include <limits>
+#include <iterator>
 #include <algorithm>
 #include <cassert>
 #include <vector>
@@ -37,6 +38,12 @@ public:
 
 	class Iterator {
 	public:
+		using iterator_category = std::forward_iterator_tag;
+		using difference_type = std::ptrdiff_t;
+		using value_type = std::decay_t<decltype(*std::declval<Iter>())>;
+		using pointer = value_type*;
+		using reference = value_type&;
+	
 		Iterator(Iter iter, Collection& collection);
 		auto operator*() const;
 		Iterator& operator++();
