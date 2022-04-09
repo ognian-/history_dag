@@ -3,14 +3,16 @@
 #include <utility>
 #include <cstddef>
 #include <iterator>
-#include <memory>
 #include <cassert>
+#include <type_traits>
+#include <optional>
 
 template <typename Target>
 class FlatCollection {
 public:
 	
-	explicit FlatCollection(Target&& target);
+	template <typename T>
+	explicit FlatCollection(T target);
 	
 	using OuterIter = decltype(std::declval<Target>().begin());
 	using InnerCollection = decltype(*std::declval<OuterIter>());
@@ -29,6 +31,7 @@ public:
 	
 		Iterator(OuterIter outer_iter, InnerIter inner_iter,
 			FlatCollection& collection);
+		Iterator(OuterIter outer_iter, FlatCollection& collection);
 		auto operator*() const;
 		Iterator& operator++();
 		Iterator operator++(int);
@@ -36,7 +39,7 @@ public:
 		bool operator!=(const Iterator& other) const;
 	private:
 		OuterIter outer_iter_;
-		std::unique_ptr<InnerIter> inner_iter_; //TODO make iter assignable
+		std::optional<InnerIter> inner_iter_;
 		FlatCollection& collection_;
 	};
 	
@@ -47,46 +50,56 @@ public:
 	
 private:
 	Target target_;
-	size_t size_;
-	std::unique_ptr<OuterIter> outer_last_; //TODO make iter assignable
+	const size_t size_;
 };
+
+template <typename T>
+FlatCollection(T) -> FlatCollection<std::conditional_t<
+	std::is_lvalue_reference_v<T>,
+	T,
+	std::decay_t<T>
+	>>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
 template <typename Target>
-FlatCollection<Target>::FlatCollection(Target&& target) : target_{target},
-	size_{0}, outer_last_{std::make_unique<OuterIter>(target_.begin())} {
-	OuterIter outer = target_.begin();
-	for (size_t i = 0; i < target_.size(); ++i) {
-		size_ += (*outer).size();
-		if (i + 1 == target_.size()) outer_last_ =
-			std::make_unique<OuterIter>(outer);
-		++outer;
-	}
-}
+template <typename T>
+FlatCollection<Target>::FlatCollection(T target) : target_{target},
+	size_{[this](){
+		size_t size = 0;
+		for (auto i : target_) size += i.size();
+		return size;
+	}()} {}
 
 template <typename Target>
 FlatCollection<Target>::Iterator::Iterator(OuterIter outer_iter,
 	InnerIter inner_iter, FlatCollection& collection) :
 		outer_iter_{outer_iter},
-		inner_iter_{std::make_unique<InnerIter>(inner_iter)},
+		inner_iter_{inner_iter},
+		collection_{collection} {}
+
+template <typename Target>
+FlatCollection<Target>::Iterator::Iterator(OuterIter outer_iter,
+	FlatCollection& collection) :
+		outer_iter_{outer_iter},
+		inner_iter_{std::nullopt},
 		collection_{collection} {}
 
 template <typename Target>
 auto FlatCollection<Target>::Iterator::operator*() const {
-	return *(inner_iter_.get());
+	assert(inner_iter_.has_value());
+	return **inner_iter_;
 }
 
 template <typename Target>
 typename FlatCollection<Target>::Iterator&
 FlatCollection<Target>::Iterator::operator++() {
-	//TODO
-	if (++(*inner_iter_) == (*outer_iter_).end()) {
+	if (++*inner_iter_ == (*outer_iter_).end()) {
 		OuterIter current = outer_iter_++;
 		if (outer_iter_ == collection_.target_.end()) {
-			inner_iter_ = std::make_unique<InnerIter>((*current).end());
+			*inner_iter_ = (*current).end();
 		} else {
-			inner_iter_ = std::make_unique<InnerIter>((*outer_iter_).begin());
+			*inner_iter_ = (*outer_iter_).begin();
 		}
 	}
 	return *this;
@@ -103,29 +116,27 @@ FlatCollection<Target>::Iterator::operator++(int) {
 template <typename Target>
 bool FlatCollection<Target>::Iterator::operator==(
 	const FlatCollection<Target>::Iterator& other) const {
-	return outer_iter_ == other.outer_iter_ &&
-		inner_iter_ == other.inner_iter_;
+	if (outer_iter_ == collection_.target_.end() &&
+		other.outer_iter_ == collection_.target_.end()) return true;
+	if (outer_iter_ != other.outer_iter_) return false;
+	return inner_iter_ == other.inner_iter_;
 }
 
 template <typename Target>
 bool FlatCollection<Target>::Iterator::operator!=(
 	const FlatCollection<Target>::Iterator& other) const {
-	return outer_iter_ != other.outer_iter_ ||
-		inner_iter_ != other.inner_iter_;
+	return not (*this == other);
 }
 
 template <typename Target>
 typename FlatCollection<Target>::Iterator FlatCollection<Target>::begin() {
-	assert(!empty()); //TODO
+	if (empty()) return end();
 	return {target_.begin(), (*target_.begin()).begin(), *this};
 }
 
 template <typename Target>
 typename FlatCollection<Target>::Iterator FlatCollection<Target>::end() {
-	assert(!empty()); //TODO
-	auto outer = target_.begin();
-	std::advance(outer, target_.size() - 1);
-	return {outer, (*outer).end(), *this};
+	return {target_.end(), *this};
 }
 
 template <typename Target>
@@ -135,5 +146,5 @@ size_t FlatCollection<Target>::size() const {
 
 template <typename Target>
 bool FlatCollection<Target>::empty() const {
-	return size_ > 0;
+	return size_ == 0;
 }

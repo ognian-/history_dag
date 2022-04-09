@@ -24,11 +24,14 @@ public:
 		using const_reference = const reference;
 	
 		Iterator(Iter iter, Collection& collection);
+		Iterator(const Iterator&) = default;
+		Iterator& operator=(const Iterator& other);
 		auto operator*() const;
 		Iterator& operator++();
 		Iterator operator++(int);
 		bool operator==(const Iterator& other) const;
 		bool operator!=(const Iterator& other) const;
+		
 	private:
 		Iter iter_;
 		Collection& collection_;
@@ -54,6 +57,13 @@ Collection<Storage, Transform>::Collection(Storage& data,
 template <typename Storage, typename Transform>
 Collection<Storage, Transform>::Iterator::Iterator(Iter iter,
 	Collection& collection) : iter_{iter}, collection_{collection} {}
+
+template <typename Storage, typename Transform>
+typename Collection<Storage, Transform>::Iterator&
+Collection<Storage, Transform>::Iterator::operator=(const Iterator& other) {
+	iter_ = other.iter_;
+	return *this;
+}
 
 template <typename Storage, typename Transform>
 auto Collection<Storage, Transform>::Iterator::operator*() const {

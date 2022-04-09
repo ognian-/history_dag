@@ -111,17 +111,16 @@ int main() {
 		"TT", "CC", "GA", "AA", "CA", "GG",
 	});
 	
-	ToDOT(dag, std::cout);
+	// ToDOT(dag, std::cout);
 	
 	for (auto i : dag.GetNodes()) {
 		std::cout << "Node: " << i.GetId().value << "\n";
 		for (auto j : i.GetChildren()) {
-			std::ignore = j;
-			//std::cout << j.GetId().value << " ";
+			std::cout << j.GetId().value << " ";
 		}
 		std::cout << "\n";
 	}
-	
+
 	std::cout << "Done.\n";
 	return 0;
 }

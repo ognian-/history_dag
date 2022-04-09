@@ -9,16 +9,23 @@ CXXFLAGS += -std=c++17 \
 	-Iinclude -Itest
 LDFLAGS +=
 
-ifeq ($(SANITIZE),yes)
+ifneq ($(SANITIZE),no)
+ifneq ($(MEMCHECK),yes)
 	CXXFLAGS += -fsanitize=address -fsanitize=undefined
 	LDFLAGS += -lasan -lubsan
+endif
+endif
+
+RUN_COMMAND := $(OUTDIR)/$(PRODUCT)
+ifeq ($(MEMCHECK),yes)
+	RUN_COMMAND := valgrind --tool=memcheck --track-origins=yes $(OUTDIR)/$(PRODUCT)
 endif
 
 OBJECTS := $(patsubst %.cpp,%.o,$(patsubst %,$(OUTDIR)/%,$(SOURCES)))
 
 all: $(OUTDIR)/$(PRODUCT)
 	@echo Running $(OUTDIR)/$(PRODUCT)
-	@$(OUTDIR)/$(PRODUCT)
+	@$(RUN_COMMAND)
 
 $(OUTDIR)/%.d: %.cpp
 	@mkdir -p $(dir $@)
