@@ -18,10 +18,13 @@ public:
 	bool IsRoot() const;
 	bool IsLeaf();
 private:
+	friend bool operator==(Node, Node);
 	NodeStorage& GetStorage() const;
 	HistoryDAG& dag_;
 	NodeId id_;
 };
+
+bool operator==(Node lhs, Node rhs);
 
 ///////////////////////////////////////////////////////////////////////////////
 

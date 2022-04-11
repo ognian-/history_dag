@@ -3,7 +3,6 @@
 #include "test_common.hpp"
 
 #include "hdag_ops.hpp"
-#include "pre_order_iterator.hpp"
 
 static void test_pre_order() {
     HistoryDAG dag = GenerateRandomDag({
@@ -12,12 +11,8 @@ static void test_pre_order() {
 
     ToDOT(dag, std::cout);
 
-    PreOrderIterator poi{dag.GetRoot()};
-
-    for (size_t i = 0; i < dag.GetNodes().size() - 1; ++i) {
-        size_t val = (*poi).GetId().value;
-        std::cout << "  Node: " << val << "\n";
-        ++poi;
+    for (auto i : dag.GetNodesPreOrder()) {
+        std::cout << "  Node: " << i.GetId().value << "\n";
     }
 }
 

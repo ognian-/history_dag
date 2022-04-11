@@ -36,8 +36,8 @@ PreOrderIterator PreOrderIterator::operator++(int) {
     return result;
 }
 
-bool PreOrderIterator::operator==(const PreOrderIterator&) const {
-    return false;
+bool PreOrderIterator::operator==(const PreOrderIterator& other) const {
+    return stack_ == other.stack_;
 }
 
 bool PreOrderIterator::operator!=(const PreOrderIterator& other) const {

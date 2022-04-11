@@ -6,15 +6,15 @@
 
 static constexpr size_t NoId = std::numeric_limits<size_t>::max();
 
-struct NodeId {
-	size_t value = NoId;
-};
+struct NodeId { size_t value = NoId; };
 
-struct EdgeId {
-	size_t value = NoId;
-};
+struct EdgeId { size_t value = NoId; };
 
 inline bool operator==(NodeId lhs, NodeId rhs) {
+	return lhs.value == rhs.value;
+}
+
+inline bool operator==(EdgeId lhs, EdgeId rhs) {
 	return lhs.value == rhs.value;
 }
 
@@ -28,3 +28,16 @@ static T& GetOrInsert(std::vector<T>& data, Id id) {
 		return data[id.value];
 	}
 }
+
+template <typename Iter>
+class Range {
+public:
+	Range(Iter begin, Iter end) : begin_{begin}, end_{end} {}
+
+	Iter begin() { return begin_; }
+	Iter end() { return end_; }
+
+private:
+	Iter begin_;
+	Iter end_;
+};

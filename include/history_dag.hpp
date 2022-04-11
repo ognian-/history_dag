@@ -12,6 +12,7 @@
 
 #include "history_dag_node_storage.hpp"
 #include "history_dag_edge_storage.hpp"
+#include "pre_order_iterator.hpp"
 
 class HistoryDAG {
 public:
@@ -30,6 +31,8 @@ public:
 	Edge GetEdge(EdgeId id);
 
 	Node GetRoot();
+
+	inline auto GetNodesPreOrder();
 	
 private:
 	friend class Node;
@@ -64,4 +67,8 @@ auto HistoryDAG::GetEdges() {
 	return Collection{edges_, [this](EdgeStorage&, size_t idx) {
 		return Edge{*this, {idx}};
 	}};
+}
+
+auto HistoryDAG::GetNodesPreOrder() {
+	return Range{PreOrderIterator{GetRoot()}, PreOrderIterator{}};
 }

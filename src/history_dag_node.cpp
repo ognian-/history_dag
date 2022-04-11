@@ -16,3 +16,8 @@ bool Node::IsLeaf() {
 NodeStorage& Node::GetStorage() const {
 	return dag_.nodes_.at(id_.value);
 }
+
+bool operator==(Node lhs, Node rhs) {
+	return std::addressof(lhs.dag_) == std::addressof(rhs.dag_) &&
+		lhs.id_ == rhs.id_;
+}

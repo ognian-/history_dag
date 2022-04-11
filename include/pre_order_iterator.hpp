@@ -19,6 +19,7 @@ public:
 	using const_reference = const reference;
 
 	explicit PreOrderIterator(Node node);
+	PreOrderIterator() = default;
 	Node operator*();
 	PreOrderIterator& operator++();
 	PreOrderIterator operator++(int);

@@ -14,7 +14,10 @@ public:
 	Node GetChild() const;
 	size_t GetClade() const;
 private:
+	friend bool operator==(Edge, Edge);
 	EdgeStorage& GetStorage() const;
 	HistoryDAG& dag_;
 	EdgeId id_;
 };
+
+bool operator==(Edge lhs, Edge rhs);
