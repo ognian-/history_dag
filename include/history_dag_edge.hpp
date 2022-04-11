@@ -11,7 +11,7 @@ public:
 	Edge(HistoryDAG& dag, EdgeId id);
 	EdgeId GetId() const;
 	Node GetParent() const;
-	Node GetChild() const;
+	Node GetChild();
 	size_t GetClade() const;
 private:
 	friend bool operator==(Edge, Edge);

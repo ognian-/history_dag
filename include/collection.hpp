@@ -37,8 +37,8 @@ public:
 		Collection collection_;
 	};
 	
-	Iterator begin();
-	Iterator end();
+	Iterator begin() const;
+	Iterator end() const;
 	size_t size() const;
 	bool empty() const;
 	
@@ -97,13 +97,13 @@ bool Collection<Storage, Transform>::Iterator::operator!=(
 
 template <typename Storage, typename Transform>
 typename Collection<Storage, Transform>::Iterator
-Collection<Storage, Transform>::begin() {
+Collection<Storage, Transform>::begin() const {
 	return {data_.begin(), *this};
 }
 
 template <typename Storage, typename Transform>
 typename Collection<Storage, Transform>::Iterator
-Collection<Storage, Transform>::end() {
+Collection<Storage, Transform>::end() const {
 	return {data_.end(), *this};
 }
 

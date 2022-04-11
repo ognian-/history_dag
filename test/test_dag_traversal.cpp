@@ -9,11 +9,25 @@ static void test_pre_order() {
         "TT", "CC", "GA", "AA", "CA", "GG",
     });
 
-    ToDOT(dag, std::cout);
+    struct Recurse {
+        std::vector<NodeId> operator()(Node node) {
+            std::vector<NodeId> result;
+            result.push_back(node.GetId());
+            for (auto i : node.GetChildren()) {
+                std::vector<NodeId> rec = Recurse{}(i.GetChild());
+                result.insert(result.end(), rec.begin(), rec.end());
+            }
+            return result;
+        }
+    };
 
-    for (auto i : dag.GetNodesPreOrder()) {
-        std::cout << "  Node: " << i.GetId().value << "\n";
+    std::vector<NodeId> result;
+
+    for (Node node : dag.TraversePreOrder()) {
+        result.push_back(node.GetId());
     }
+
+    assert_equal(Recurse{}(dag.GetRoot()), result, "Pre-order");
 }
 
 static void run_test() {

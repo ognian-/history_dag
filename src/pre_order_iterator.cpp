@@ -7,6 +7,10 @@ PreOrderIterator::PreOrderIterator(Node node) {
 Node PreOrderIterator::operator*() {
     assert(not stack_.empty());
     auto result = stack_.top();
+    if (!root_visited_) {
+        root_visited_ = true;
+        return result.GetParent();
+    }
     if (GetFirstChild(result).has_value()) {
         stack_.push(GetFirstChild(result).value());
     } else {

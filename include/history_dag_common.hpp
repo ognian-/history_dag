@@ -14,6 +14,10 @@ inline bool operator==(NodeId lhs, NodeId rhs) {
 	return lhs.value == rhs.value;
 }
 
+inline bool operator<(NodeId lhs, NodeId rhs) {
+	return lhs.value < rhs.value;
+}
+
 inline bool operator==(EdgeId lhs, EdgeId rhs) {
 	return lhs.value == rhs.value;
 }

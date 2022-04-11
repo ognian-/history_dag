@@ -13,10 +13,14 @@ Edge HistoryDAG::AddEdge(EdgeId id, Node parent, Node child, size_t clade) {
 }
 
 void HistoryDAG::Finalize() {
+	root_ = {NoId};
+	leafs_ = {};
 	for (auto node : GetNodes()) {
 		if (node.IsRoot()) {
 			root_ = node.GetId();
-			break;
+		}
+		if (node.IsLeaf()) {
+			leafs_.push_back(node.GetId());
 		}
 	}
 }

@@ -32,7 +32,9 @@ public:
 
 	Node GetRoot();
 
-	inline auto GetNodesPreOrder();
+	inline auto GetLeafs();
+
+	inline auto TraversePreOrder();
 	
 private:
 	friend class Node;
@@ -41,6 +43,7 @@ private:
 	std::vector<NodeStorage> nodes_;
 	std::vector<EdgeStorage> edges_;
 	NodeId root_ = {NoId};
+	std::vector<NodeId> leafs_;
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -69,6 +72,12 @@ auto HistoryDAG::GetEdges() {
 	}};
 }
 
-auto HistoryDAG::GetNodesPreOrder() {
+inline auto HistoryDAG::GetLeafs() {
+	return Collection{leafs_, [this](NodeId node_id, size_t) {
+		return Node{*this, node_id};
+	}};
+}
+
+auto HistoryDAG::TraversePreOrder() {
 	return Range{PreOrderIterator{GetRoot()}, PreOrderIterator{}};
 }

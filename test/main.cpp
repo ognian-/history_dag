@@ -12,7 +12,10 @@ bool add_test(const Test& test) noexcept {
 	return true;
 }
 
-int main(int /*argc*/, char* /*argv*/ []) {
+int main(int argc, const char* argv[]) {
+
+	bool no_catch = false;
+	if (argc > 1 && std::string("nocatch") == argv[1]) no_catch = true;
 
 	size_t failed = 0, ran = 0;
 	const auto num_tests = get_all_tests().size();
@@ -21,13 +24,23 @@ int main(int /*argc*/, char* /*argv*/ []) {
 		++ran;
 		std::cout << "Running test: " << test.name <<
 			" (" << ran << "/" << num_tests << ") ...";
-		try {
+
+		if (no_catch) {
+
 			test.entry();
 			std::cout << " passed." << std::endl;
-		} catch (const std::exception& e) {
-			++failed;
-			std::cerr << std::endl << "Test '" << test.name <<
-				"' failed with '" << e.what() << "'" << std::endl;
+
+		} else {
+
+			try {
+				test.entry();
+				std::cout << " passed." << std::endl;
+			} catch (const std::exception& e) {
+				++failed;
+				std::cerr << std::endl << "Test '" << test.name <<
+					"' failed with '" << e.what() << "'" << std::endl;
+			}
+
 		}
 	}
 	if (failed) {

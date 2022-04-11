@@ -8,7 +8,7 @@ EdgeId Edge::GetId() const { return id_; }
 
 Node Edge::GetParent() const { return {dag_, GetStorage().parent_}; }
 
-Node Edge::GetChild() const { return {dag_, GetStorage().child_}; }
+Node Edge::GetChild() { return {dag_, GetStorage().child_}; }
 
 size_t Edge::GetClade() const { return GetStorage().clade_; }
 

@@ -32,4 +32,5 @@ private:
 	static std::optional<Edge> GetNextSibling(Edge edge);
 
 	std::stack<Edge> stack_;
+	bool root_visited_ = false;
 };

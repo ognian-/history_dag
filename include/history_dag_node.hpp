@@ -10,7 +10,7 @@ class Node {
 public:
 	Node(HistoryDAG& dag, NodeId id);
 	NodeId GetId() const;
-	inline auto GetSequence() const;
+	inline auto GetSequence();
 	inline auto GetParents() const;
 	inline auto GetClades();
 	inline auto GetChildren();
@@ -32,7 +32,7 @@ bool operator==(Node lhs, Node rhs);
 #include "collection.hpp"
 #include "flat_collection.hpp"
 
-auto Node::GetSequence() const {
+auto Node::GetSequence() {
 	return Collection{GetStorage().sequence_, [](char x, size_t) {
 		return x;
 	}};
