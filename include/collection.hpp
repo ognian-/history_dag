@@ -1,3 +1,10 @@
+/*
+  Collection is a lightweight object with the properties of a sized container
+  with forward iterators. It is meant to be passed by value, as it merely holds
+  a reference to the actual storage. It is also capable of lazily applying a
+  transform to each element, which is for example useful when representing a
+  storage of NodeIs, but returns Node instances to it's users.
+*/
 #pragma once
 
 #include <utility>

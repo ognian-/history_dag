@@ -40,12 +40,12 @@ static void test_merge() {
     dag2.AddEdge({4}, dag2.GetNode({6}), dag2.GetNode({4}), 0);
     dag2.AddEdge({5}, dag2.GetNode({6}), dag2.GetNode({5}), 0);
 
-    std::vector<char> universal_ancestral_sequence = {'C', 'A'};
-    MergeDAGs merge{universal_ancestral_sequence};
+    // std::vector<char> universal_ancestral_sequence = {'C', 'A'};
+    // MergeDAGs merge{universal_ancestral_sequence};
 
-    auto result = merge(dag1, dag2);
+    // auto result = merge(dag1, dag2);
 
-    ToDOT(result, std::cout);
+    // ToDOT(result, std::cout);
 }
 
 static void run_test() {

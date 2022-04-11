@@ -1,3 +1,8 @@
+/*
+  Node is a lightweight view object into the internal node storage of a
+  HistoryDAG. It is meant to be cheaply passed by value, and behaves as a
+  reference into raw storage that conveniently enriches it's API.
+*/
 #pragma once
 
 #include "history_dag_common.hpp"

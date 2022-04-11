@@ -1,3 +1,9 @@
+/*
+  FlatCollection is representing a two-dimensional container as a linear
+  sequence of elements. If constructed with a lvalue reference it behaves as a
+  lightweight view into the actual storage. If constructed with a rvalue
+  reference it will assume ownership and move the data into itself.
+*/
 #pragma once
 
 #include <utility>

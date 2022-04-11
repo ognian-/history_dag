@@ -1,3 +1,20 @@
+/*
+  HistoryDAG is the main structure that owns node and edge data, and provides
+  various queries.
+
+  Populating with data should be performed by first adding all nodes by the
+  AddNode() function, then adding all the edges with AddEdge() and finally
+  calling Finalize().
+
+  NodeId and EdgeId are strongly typed wrappers around size_t, and data is
+  stored internally by the order of its IDs.
+
+  GetNodes() and GetEdges() returns a view into the corresponding elements,
+  ordered by id.
+
+  TraversePreOrder() returns a view into Nodes in pre-order traversal order.
+
+*/
 #pragma once
 
 #include "flat_collection.hpp"

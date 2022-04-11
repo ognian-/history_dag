@@ -1,3 +1,8 @@
+/*
+  Edge is a lightweight view object into the internal edge storage of a
+  HistoryDAG. It is meant to be cheaply passed by value, and behaves as a
+  reference into raw storage that conveniently enriches it's API.
+*/
 #pragma once
 
 #include "history_dag_common.hpp"
