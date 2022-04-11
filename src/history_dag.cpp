@@ -12,6 +12,19 @@ Edge HistoryDAG::AddEdge(EdgeId id, Node parent, Node child, size_t clade) {
 	return edge;
 }
 
+void HistoryDAG::Finalize() {
+	for (auto node : GetNodes()) {
+		if (node.IsRoot()) {
+			root_ = node.GetId();
+			break;
+		}
+	}
+}
+
 Node HistoryDAG::GetNode(NodeId id) { return {*this, id}; }
 
 Edge HistoryDAG::GetEdge(EdgeId id) { return {*this, id}; }
+
+Node HistoryDAG::GetRoot() {
+	return {*this, root_};
+}

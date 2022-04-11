@@ -12,8 +12,9 @@ class FlatCollection {
 public:
 	
 	template <typename T>
-	explicit FlatCollection(T target);
+	constexpr explicit FlatCollection(T&& target);
 	
+	using TargetType = Target;
 	using OuterIter = decltype(std::declval<Target>().begin());
 	using InnerCollection = decltype(*std::declval<OuterIter>());
 	using InnerIter = decltype(std::declval<InnerCollection>().begin());
@@ -32,6 +33,7 @@ public:
 		Iterator(OuterIter outer_iter, InnerIter inner_iter,
 			FlatCollection& collection);
 		Iterator(OuterIter outer_iter, FlatCollection& collection);
+		Iterator(const Iterator&) = default;
 		auto operator*() const;
 		Iterator& operator++();
 		Iterator operator++(int);
@@ -54,17 +56,16 @@ private:
 };
 
 template <typename T>
-FlatCollection(T) -> FlatCollection<std::conditional_t<
-	std::is_lvalue_reference_v<T>,
-	T,
-	std::decay_t<T>
-	>>;
+FlatCollection(T&) -> FlatCollection<T&>;
+
+template <typename T>
+FlatCollection(T&&) -> FlatCollection<T>;
 
 ///////////////////////////////////////////////////////////////////////////////
 
 template <typename Target>
 template <typename T>
-FlatCollection<Target>::FlatCollection(T target) : target_{target},
+constexpr FlatCollection<Target>::FlatCollection(T&& target) : target_{target},
 	size_{[this](){
 		size_t size = 0;
 		for (auto i : target_) size += i.size();
@@ -94,13 +95,15 @@ auto FlatCollection<Target>::Iterator::operator*() const {
 template <typename Target>
 typename FlatCollection<Target>::Iterator&
 FlatCollection<Target>::Iterator::operator++() {
+	assert(inner_iter_.has_value());
 	if (++*inner_iter_ == (*outer_iter_).end()) {
-		OuterIter current = outer_iter_++;
-		if (outer_iter_ == collection_.target_.end()) {
-			*inner_iter_ = (*current).end();
-		} else {
-			*inner_iter_ = (*outer_iter_).begin();
+		while (++outer_iter_ != collection_.target_.end()) {
+			if (not (*outer_iter_).empty()) {
+				*inner_iter_ = (*outer_iter_).begin();
+				return *this;
+			}
 		}
+		inner_iter_ = std::nullopt;
 	}
 	return *this;
 }
@@ -130,8 +133,10 @@ bool FlatCollection<Target>::Iterator::operator!=(
 
 template <typename Target>
 typename FlatCollection<Target>::Iterator FlatCollection<Target>::begin() {
-	if (empty()) return end();
-	return {target_.begin(), (*target_.begin()).begin(), *this};
+	for (auto i = target_.begin(); i != target_.end(); ++i) {
+		if (not (*i).empty()) return {i, (*i).begin(), *this};
+	}
+	return end();
 }
 
 template <typename Target>

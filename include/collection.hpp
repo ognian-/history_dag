@@ -9,7 +9,7 @@ class Collection {
 public:
 
 	Collection(Storage& data, Transform&& transform);
-	
+
 	using Iter = decltype(std::declval<Storage>().begin());
 
 	class Iterator {
@@ -23,7 +23,7 @@ public:
 		using const_pointer = const pointer;
 		using const_reference = const reference;
 	
-		Iterator(Iter iter, Collection& collection);
+		Iterator(Iter iter, const Collection& collection);
 		Iterator(const Iterator&) = default;
 		Iterator& operator=(const Iterator& other);
 		auto operator*() const;
@@ -34,7 +34,7 @@ public:
 		
 	private:
 		Iter iter_;
-		Collection& collection_;
+		Collection collection_;
 	};
 	
 	Iterator begin();
@@ -56,7 +56,7 @@ Collection<Storage, Transform>::Collection(Storage& data,
 
 template <typename Storage, typename Transform>
 Collection<Storage, Transform>::Iterator::Iterator(Iter iter,
-	Collection& collection) : iter_{iter}, collection_{collection} {}
+	const Collection& collection) : iter_{iter}, collection_{collection} {}
 
 template <typename Storage, typename Transform>
 typename Collection<Storage, Transform>::Iterator&

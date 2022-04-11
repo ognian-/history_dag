@@ -20,12 +20,16 @@ public:
 	Node AddNode(NodeId id, Sequence&& sequence);
 	
 	Edge AddEdge(EdgeId id, Node parent, Node child, size_t clade);
+
+	void Finalize();
 	
 	inline auto GetNodes();
 	inline auto GetEdges();
 	
 	Node GetNode(NodeId id);
 	Edge GetEdge(EdgeId id);
+
+	Node GetRoot();
 	
 private:
 	friend class Node;
@@ -33,6 +37,7 @@ private:
 	
 	std::vector<NodeStorage> nodes_;
 	std::vector<EdgeStorage> edges_;
+	NodeId root_ = {NoId};
 };
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -60,4 +65,3 @@ auto HistoryDAG::GetEdges() {
 		return Edge{*this, {idx}};
 	}};
 }
-

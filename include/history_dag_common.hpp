@@ -14,6 +14,10 @@ struct EdgeId {
 	size_t value = NoId;
 };
 
+inline bool operator==(NodeId lhs, NodeId rhs) {
+	return lhs.value == rhs.value;
+}
+
 template <typename T, typename Id>
 static T& GetOrInsert(std::vector<T>& data, Id id) {
 	if constexpr (std::is_same_v<Id, size_t>) {

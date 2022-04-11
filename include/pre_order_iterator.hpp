@@ -3,9 +3,9 @@
 #include <utility>
 #include <cstddef>
 #include <iterator>
+#include <stack>
 
-class Node;
-class HistoryDAG;
+#include "history_dag_node.hpp"
 
 class PreOrderIterator {
 public:
@@ -18,13 +18,17 @@ public:
 	using const_pointer = const pointer;
 	using const_reference = const reference;
 
-	PreOrderIterator(HistoryDAG& dag, Node node);
-	auto operator*() const;
+	explicit PreOrderIterator(Node node);
+	Node operator*();
 	PreOrderIterator& operator++();
-	PreOrderIterator operator++(int) const;
+	PreOrderIterator operator++(int);
 	bool operator==(const PreOrderIterator& other) const;
 	bool operator!=(const PreOrderIterator& other) const;
 
 private:
-	HistoryDAG& dag_;
+
+	static std::optional<Edge> GetFirstChild(Edge edge);
+	static std::optional<Edge> GetNextSibling(Edge edge);
+
+	std::stack<Edge> stack_;
 };

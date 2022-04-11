@@ -5,7 +5,7 @@ CXX = g++
 CXXFLAGS += -std=c++17 \
 	-Werror -Wall -Wextra -pedantic -pedantic-errors \
 	-Wold-style-cast \
-	-Og -g3 \
+	-O0 -g3 \
 	-Iinclude -Itest
 LDFLAGS +=
 
@@ -41,7 +41,7 @@ $(OUTDIR)/%.o: %.cpp $(OUTDIR)/%.d
 $(OUTDIR)/$(PRODUCT): $(OBJECTS)
 	@echo Linking $@
 	@$(CXX) -o $@ $^ $(LDFLAGS)
-	@echo Success
+	@echo Build successful
 
 .PHONY: clean
 

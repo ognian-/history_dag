@@ -12,9 +12,11 @@ public:
 	NodeId GetId() const;
 	inline auto GetSequence() const;
 	inline auto GetParents() const;
-	inline auto GetClades() const;
-	inline auto GetChildren() const;
+	inline auto GetClades();
+	inline auto GetChildren();
 	inline auto GetLeafsBelow() const;
+	bool IsRoot() const;
+	bool IsLeaf();
 private:
 	NodeStorage& GetStorage() const;
 	HistoryDAG& dag_;
@@ -39,7 +41,7 @@ auto Node::GetParents() const {
 	}};
 }
 
-auto Node::GetClades() const {
+auto Node::GetClades() {
 	return Collection{GetStorage().clades_,
 		[this](std::vector<EdgeId>& clade, size_t) {
 		return Collection{clade, [this](EdgeId idx, size_t) {
@@ -48,7 +50,7 @@ auto Node::GetClades() const {
 	}};
 }
 
-auto Node::GetChildren() const {
+auto Node::GetChildren() {
 	return FlatCollection{GetClades()};
 }
 
