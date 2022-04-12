@@ -6,6 +6,7 @@
 #include "history_dag_loader.hpp"
 #include "zlib_stream.hpp"
 #include "proto/parsimony.pb.h"
+#include "newick.hpp"
 
 HistoryDAG LoadHistoryDAG(const std::string& path) {
     Parsimony::data data;
@@ -16,6 +17,11 @@ HistoryDAG LoadHistoryDAG(const std::string& path) {
     google::protobuf::io::IstreamInputStream stream(&in);
     google::protobuf::io::CodedInputStream input(&stream);
     data.ParseFromCodedStream(&input);
+    ParseNewick(data.newick(), [](size_t id, std::string label) {
+        std::cout << "   Node: " << label << "=" << id << "\n";
+    }, [](size_t parent, size_t child) {
+        std::cout << "   Edge: " << parent << "->" << child << "\n";
+    });
     HistoryDAG dag;
     return dag;
 }

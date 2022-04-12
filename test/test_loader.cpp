@@ -5,6 +5,8 @@
 #include "history_dag_loader.hpp"
 #include "hdag_ops.hpp"
 
+
+
 static void test_loading() {
     HistoryDAG dag = LoadHistoryDAG("public-latest.all.masked.pb.gz");
     ToDOT(dag, std::cout);
