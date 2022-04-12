@@ -6,7 +6,7 @@ CXX = g++
 CXXFLAGS += -std=c++17 \
 	-Werror -Wall -Wextra -pedantic -pedantic-errors \
 	-Wold-style-cast \
-	-O0 -g3 \
+	-O3 -g3 \
 	-Iinclude -Itest -I$(OUTDIR)/proto/.. \
 	$$(pkg-config --cflags protobuf)
 
@@ -38,7 +38,7 @@ all: $(OUTDIR)/$(PRODUCT)
 	@echo Running $(OUTDIR)/$(PRODUCT)
 	@$(RUN_COMMAND)
 
-$(OUTDIR)/%.d: %.cpp
+$(OUTDIR)/%.d: %.cpp $(PROTO_HEADERS)
 	@mkdir -p $(dir $@)
 	@$(CXX) -MM -MF $@ -MT '$(@:.d=.o)' $< $(CXXFLAGS)
 
@@ -49,7 +49,7 @@ $(OUTDIR)/%.pb.cc $(OUTDIR)/%.pb.h: %.proto
 	@echo Generating protobuf $<
 	@protoc --cpp_out=$(OUTDIR) $<
 
-$(OUTDIR)/%.o: %.cpp $(OUTDIR)/%.d $(PROTO_HEADERS)
+$(OUTDIR)/%.o: %.cpp $(OUTDIR)/%.d
 	@mkdir -p $(dir $@)
 	@echo Compiling C++ $<
 	@$(CXX) -c -o $@ $< $(CXXFLAGS)

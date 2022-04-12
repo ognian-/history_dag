@@ -1,7 +1,9 @@
 #include "history_dag_node.hpp"
 #include "history_dag.hpp"
 
-Node::Node(HistoryDAG& dag, NodeId id) : dag_{dag}, id_{id} {}
+Node::Node(HistoryDAG& dag, NodeId id) : dag_{dag}, id_{id} {
+	assert(id.value != NoId);
+}
 
 NodeId Node::GetId() const { return id_; }
 

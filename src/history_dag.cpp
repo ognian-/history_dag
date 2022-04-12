@@ -6,15 +6,16 @@ Edge HistoryDAG::AddEdge(EdgeId id, Node parent, Node child, size_t clade) {
 	storage.parent_ = parent.GetId();
 	storage.child_ = child.GetId();
 	storage.clade_ = clade;
-	Edge edge{*this, id};
-	nodes_.at(parent.GetId().value).AddEdge(edge, true);
-	nodes_.at(child.GetId().value).AddEdge(edge, false);
-	return edge;
+	return {*this, id};
 }
 
 void HistoryDAG::Finalize() {
 	root_ = {NoId};
 	leafs_ = {};
+	for (auto edge : GetEdges()) {
+		nodes_.at(edge.GetParent().GetId().value).AddEdge(edge, true);
+		nodes_.at(edge.GetChild().GetId().value).AddEdge(edge, false);
+	}
 	for (auto node : GetNodes()) {
 		if (node.IsRoot()) {
 			root_ = node.GetId();

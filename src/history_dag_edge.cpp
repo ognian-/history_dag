@@ -2,7 +2,9 @@
 #include "history_dag.hpp"
 #include "history_dag_node.hpp"
 
-Edge::Edge(HistoryDAG& dag, EdgeId id) : dag_{dag}, id_{id} {}
+Edge::Edge(HistoryDAG& dag, EdgeId id) : dag_{dag}, id_{id} {
+	assert(id.value != NoId);
+}
 
 EdgeId Edge::GetId() const { return id_; }
 

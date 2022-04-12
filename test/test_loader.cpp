@@ -4,12 +4,16 @@
 
 #include "history_dag_loader.hpp"
 #include "hdag_ops.hpp"
-
+#include "benchmark.hpp"
 
 
 static void test_loading() {
+    Benchmark load_time;
+    load_time.start();
     HistoryDAG dag = LoadHistoryDAG("public-latest.all.masked.pb.gz");
-    ToDOT(dag, std::cout);
+    load_time.stop();
+    std::cout << "\nDAG loaded in " << load_time.durationMs() << " ms\n";
+    // ToDOT(dag, std::cout);
 }
 
 static void run_test() {
