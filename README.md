@@ -1,5 +1,16 @@
 # History DAG scratchpad
 
+Requirements
+------------
+
+* GNU make
+* pkgconfig
+* protobuf libraries and compiler
+* zlib
+
+Building
+--------
+
 Executing `make` will build and run the tests.
 
 Address and UB sanitizers can be disabled by `make SANITIZE=no`. Disabling them may be helpful if *asan* and *ubsan* libraries are not available on the system.

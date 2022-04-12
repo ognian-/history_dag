@@ -23,7 +23,7 @@ int main(int argc, const char* argv[]) {
 	for (auto&& test : get_all_tests()) {
 		++ran;
 		std::cout << "Running test: " << test.name <<
-			" (" << ran << "/" << num_tests << ") ...";
+			" (" << ran << "/" << num_tests << ") ..." << std::flush;
 
 		if (no_catch) {
 
