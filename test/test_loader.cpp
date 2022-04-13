@@ -3,7 +3,6 @@
 #include "test_common.hpp"
 
 #include "history_dag_loader.hpp"
-#include "hdag_ops.hpp"
 #include "benchmark.hpp"
 
 
@@ -12,8 +11,7 @@ static void test_loading() {
     load_time.start();
     HistoryDAG dag = LoadHistoryDAG("data/1final-tree-1.nh1.pb.gz");
     load_time.stop();
-    std::cout << "\nDAG loaded in " << load_time.durationMs() << " ms\n";
-    // ToDOT(dag, std::cout);
+    // std::cout << "\nDAG loaded in " << load_time.durationMs() << " ms\n";
 }
 
 static void run_test() {
