@@ -52,6 +52,7 @@ $(OUTDIR)/%.pb.cc $(OUTDIR)/%.pb.h: %.proto
 $(OUTDIR)/%.o: %.cpp $(OUTDIR)/%.d
 	@mkdir -p $(dir $@)
 	@echo Compiling C++ $<
+#	@clang-tidy --config-file=.clang-tidy $< -- $(CXXFLAGS)
 	@$(CXX) -c -o $@ $< $(CXXFLAGS)
 
 %.pb.o: %.pb.cc %.pb.h

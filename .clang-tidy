@@ -1,0 +1,5 @@
+Checks: 'clang-diagnostic-*,clang-analyzer-*,clang-analyzer-*,clang-analyzer-cplusplus*,bugprone-*,concurrency-*,cppcoreguidelines-*,misc-*,performance-*,portability-*,readability-*'
+WarningsAsErrors: '*'
+HeaderFilterRegex: '.*'
+AnalyzeTemporaryDtors: false
+FormatStyle: none

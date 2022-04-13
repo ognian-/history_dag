@@ -10,7 +10,7 @@
 static void test_loading() {
     Benchmark load_time;
     load_time.start();
-    HistoryDAG dag = LoadHistoryDAG("public-latest.all.masked.pb.gz");
+    HistoryDAG dag = LoadHistoryDAG("data/1final-tree-1.nh1.pb.gz");
     load_time.stop();
     std::cout << "\nDAG loaded in " << load_time.durationMs() << " ms\n";
     // ToDOT(dag, std::cout);
