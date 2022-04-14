@@ -20,7 +20,7 @@ public:
 
 	explicit PreOrderIterator(Node node);
 	PreOrderIterator() = default;
-	Node operator*();
+	Node operator*() const;
 	PreOrderIterator& operator++();
 	PreOrderIterator operator++(int);
 	bool operator==(const PreOrderIterator& other) const;

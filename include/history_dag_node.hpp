@@ -13,20 +13,21 @@ class Edge;
 
 class Node {
 public:
-	Node(HistoryDAG& dag, NodeId id);
+	Node(const HistoryDAG& dag, NodeId id);
+	const HistoryDAG& GetDAG() const;
 	NodeId GetId() const;
-	inline auto GetSequence();
-	inline auto GetParents() const;
-	inline auto GetClades();
-	inline auto GetChildren();
-	inline auto GetLeafsBelow() const;
+	inline CollectionOf<char> auto GetSequence() const;
+	inline CollectionOf<Edge> auto GetParents() const;
+	inline CollectionOfCollections<Edge> auto GetClades() const;
+	inline CollectionOf<Edge> auto GetChildren() const;
+	inline CollectionOf<Node> auto GetLeafsBelow() const;
 	bool IsRoot() const;
-	bool IsLeaf();
+	bool IsLeaf() const;
 private:
 	friend bool operator==(Node, Node);
-	NodeStorage& GetStorage() const;
-	HistoryDAG& dag_;
-	NodeId id_;
+	const NodeStorage& GetStorage() const;
+	const HistoryDAG& dag_;
+	const NodeId id_;
 };
 
 bool operator==(Node lhs, Node rhs);
@@ -34,36 +35,33 @@ bool operator==(Node lhs, Node rhs);
 ///////////////////////////////////////////////////////////////////////////////
 
 #include "history_dag_node_storage.hpp"
-#include "collection.hpp"
-#include "flat_collection.hpp"
 
-auto Node::GetSequence() {
-	return Collection{GetStorage().sequence_, [](char x, size_t) {
-		return x;
-	}};
+CollectionOf<char> auto Node::GetSequence() const {
+	return std::ranges::ref_view(GetStorage().sequence_);
 }
 
-auto Node::GetParents() const {
-	return Collection{GetStorage().parents_, [this](EdgeId idx, size_t) {
+CollectionOf<Edge> auto Node::GetParents() const {
+	return GetStorage().parents_ | std::views::transform([this](EdgeId idx) {
 		return Edge{dag_, idx};
-	}};
+	});
 }
 
-auto Node::GetClades() {
-	return Collection{GetStorage().clades_,
-		[this](std::vector<EdgeId>& clade, size_t) {
-		return Collection{clade, [this](EdgeId idx, size_t) {
-			return Edge{dag_, idx};
-		}};
-	}};
+CollectionOfCollections<Edge> auto Node::GetClades() const {
+	return GetStorage().clades_ | std::views::transform(
+		[this](const std::vector<EdgeId>& clade) {
+			return clade | std::views::transform([this](EdgeId idx) {
+				return Edge{dag_, idx};
+			});
+		});
 }
 
-auto Node::GetChildren() {
-	return FlatCollection{GetClades()};
+CollectionOf<Edge> auto Node::GetChildren() const {
+	return GetClades() | std::views::join;
 }
 
-auto Node::GetLeafsBelow() const {
-	return Collection{GetStorage().leafs_below_, [this](NodeId idx, size_t) {
-		return Node{dag_, idx};
-	}};
+CollectionOf<Node> auto Node::GetLeafsBelow() const {
+	return GetStorage().leafs_below_ | std::views::transform(
+		[this](NodeId idx) {
+			return Node{dag_, idx};
+		});
 }

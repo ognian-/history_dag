@@ -26,10 +26,10 @@ void HistoryDAG::Finalize() {
 	}
 }
 
-Node HistoryDAG::GetNode(NodeId id) { return {*this, id}; }
+Node HistoryDAG::GetNode(NodeId id) const { return {*this, id}; }
 
-Edge HistoryDAG::GetEdge(EdgeId id) { return {*this, id}; }
+Edge HistoryDAG::GetEdge(EdgeId id) const { return {*this, id}; }
 
-Node HistoryDAG::GetRoot() {
+Node HistoryDAG::GetRoot() const {
 	return {*this, root_};
 }

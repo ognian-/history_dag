@@ -13,16 +13,17 @@ class Node;
 
 class Edge {
 public:
-	Edge(HistoryDAG& dag, EdgeId id);
+	Edge(const HistoryDAG& dag, EdgeId id);
+	const HistoryDAG& GetDAG() const;
 	EdgeId GetId() const;
 	Node GetParent() const;
-	Node GetChild();
+	Node GetChild() const;
 	size_t GetClade() const;
 private:
 	friend bool operator==(Edge, Edge);
-	EdgeStorage& GetStorage() const;
-	HistoryDAG& dag_;
-	EdgeId id_;
+	const EdgeStorage& GetStorage() const;
+	const HistoryDAG& dag_;
+	const EdgeId id_;
 };
 
 bool operator==(Edge lhs, Edge rhs);

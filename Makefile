@@ -3,7 +3,7 @@ SOURCES := $(wildcard src/*.cpp) $(wildcard test/*.cpp)
 PROTO_DEFS := $(wildcard proto/*.proto)
 PRODUCT := history-dag-test
 CXX = g++
-CXXFLAGS += -std=c++17 \
+CXXFLAGS += -std=c++20 \
 	-Werror -Wall -Wextra -pedantic -pedantic-errors \
 	-Wold-style-cast \
 	-O3 -g3 \

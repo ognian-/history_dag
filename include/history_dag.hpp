@@ -17,15 +17,13 @@
 */
 #pragma once
 
-#include "flat_collection.hpp"
-#include "collection.hpp"
-
 #include <type_traits>
 #include <limits>
 #include <iterator>
 #include <algorithm>
 #include <cassert>
 #include <vector>
+#include <ranges>
 
 #include "history_dag_node_storage.hpp"
 #include "history_dag_edge_storage.hpp"
@@ -41,17 +39,17 @@ public:
 
 	void Finalize();
 	
-	inline auto GetNodes();
-	inline auto GetEdges();
+	inline CollectionOf<Node> auto GetNodes() const;
+	inline CollectionOf<Edge> auto GetEdges() const;
 	
-	Node GetNode(NodeId id);
-	Edge GetEdge(EdgeId id);
+	Node GetNode(NodeId id) const;
+	Edge GetEdge(EdgeId id) const;
 
-	Node GetRoot();
+	Node GetRoot() const;
 
-	inline auto GetLeafs();
+	inline CollectionOf<Node> auto GetLeafs() const;
 
-	inline auto TraversePreOrder();
+	inline CollectionOf<Node> auto TraversePreOrder() const;
 	
 private:
 	friend class Node;
@@ -77,24 +75,27 @@ Node HistoryDAG::AddNode(NodeId id, Sequence&& sequence) {
 	return {*this, id};
 }
 
-auto HistoryDAG::GetNodes() {
-	return Collection{nodes_, [this](NodeStorage&, size_t idx) {
-		return Node{*this, {idx}};
-	}};
+CollectionOf<Node> auto HistoryDAG::GetNodes() const {
+	return nodes_ | std::views::transform(
+		[this, idx = size_t{}](const NodeStorage&) mutable {
+			return Node{*this, {idx++}};
+		});
 }
 
-auto HistoryDAG::GetEdges() {
-	return Collection{edges_, [this](EdgeStorage&, size_t idx) {
-		return Edge{*this, {idx}};
-	}};
+CollectionOf<Edge> auto HistoryDAG::GetEdges() const {
+	return edges_ | std::views::transform(
+		[this, idx = size_t{}](const EdgeStorage&) mutable {
+			return Edge{*this, {idx++}};
+		});
 }
 
-inline auto HistoryDAG::GetLeafs() {
-	return Collection{leafs_, [this](NodeId node_id, size_t) {
-		return Node{*this, node_id};
-	}};
+CollectionOf<Node> auto HistoryDAG::GetLeafs() const {
+	return leafs_ | std::views::transform([this](NodeId node_id) {
+			return Node{*this, node_id};
+		});
 }
 
-auto HistoryDAG::TraversePreOrder() {
-	return Range{PreOrderIterator{GetRoot()}, PreOrderIterator{}};
+CollectionOf<Node> auto HistoryDAG::TraversePreOrder() const {
+	return std::ranges::subrange(PreOrderIterator{GetRoot()},
+		PreOrderIterator{});
 }

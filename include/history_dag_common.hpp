@@ -3,6 +3,7 @@
 #include <cstddef>
 #include <limits>
 #include <vector>
+#include <ranges>
 
 static constexpr size_t NoId = std::numeric_limits<size_t>::max();
 
@@ -33,15 +34,12 @@ static T& GetOrInsert(std::vector<T>& data, Id id) {
 	}
 }
 
-template <typename Iter>
-class Range {
-public:
-	Range(Iter begin, Iter end) : begin_{begin}, end_{end} {}
+template <typename T, typename Value>
+concept CollectionOf = std::ranges::view<T> &&
+	std::is_same_v<Value, std::ranges::range_value_t<T>>;
 
-	Iter begin() { return begin_; }
-	Iter end() { return end_; }
-
-private:
-	Iter begin_;
-	Iter end_;
-};
+template <typename T, typename Value>
+concept CollectionOfCollections = std::ranges::view<T> &&
+	std::ranges::view<std::ranges::range_value_t<T>> &&
+	std::is_same_v<Value,
+    std::ranges::range_value_t<std::ranges::range_value_t<T>>>;

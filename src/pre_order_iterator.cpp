@@ -1,10 +1,12 @@
+#include <cassert>
+
 #include "pre_order_iterator.hpp"
 
 PreOrderIterator::PreOrderIterator(Node node) {
     stack_.push(*node.GetChildren().begin());
 }
 
-Node PreOrderIterator::operator*() {
+Node PreOrderIterator::operator*() const {
     assert(not stack_.empty());
     auto result = stack_.top();
     if (!root_visited_) {

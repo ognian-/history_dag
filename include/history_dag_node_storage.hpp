@@ -5,7 +5,8 @@
 #include "history_dag_edge.hpp"
 
 class NodeStorage {
-public:
+	friend class Node;
+	friend class HistoryDAG;
 	
 	void AddEdge(Edge edge, bool is_parent);
 
