@@ -40,13 +40,15 @@ public:
     HistoryDAG dag;
     size_t edge_id = 0;
     std::unordered_map<std::string, size_t> node_ids;
-    ParseNewick(data.newick(), [&](size_t id, std::string label) {
-        node_ids[label] = id;
-        dag.AddNode({id}, label);
-    }, [&](size_t parent, size_t child) {
-        dag.AddEdge({edge_id++}, dag.GetNode({parent}),
-            dag.GetNode({child}), 0);
-    });
+    ParseNewick(data.newick(), [&](size_t id, std::string label,
+        std::optional<double> branch_length) {
+            node_ids[label] = id;
+            dag.AddNode({id}, std::ranges::empty_view<char>{});
+            std::ignore = branch_length;
+        }, [&](size_t parent, size_t child) {
+            dag.AddEdge({edge_id++}, dag.GetNode({parent}),
+                dag.GetNode({child}), 0);
+        });
 
     std::vector<std::vector<NodeMutationsStorage>> node_mutations;
     std::transform(data.node_mutations().begin(), data.node_mutations().end(),
