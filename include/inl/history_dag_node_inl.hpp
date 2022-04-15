@@ -8,6 +8,11 @@ NodeView<T>::NodeView(T dag, NodeId id) : dag_{dag}, id_{id} {
 }
 
 template <typename T>
+NodeView<T>::operator Node() const {
+	return {dag_, id_};
+}
+
+template <typename T>
 const HistoryDAG& NodeView<T>::GetDAG() const { return dag_; }
 
 template <typename T>

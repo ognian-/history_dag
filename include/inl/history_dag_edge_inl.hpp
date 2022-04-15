@@ -9,6 +9,11 @@ EdgeView<T>::EdgeView(T dag, EdgeId id) : dag_{dag}, id_{id} {
 }
 
 template <typename T>
+EdgeView<T>::operator Edge() const {
+	return {dag_, id_};
+}
+
+template <typename T>
 const HistoryDAG& EdgeView<T>::GetDAG() const { return dag_; }
 
 template <typename T>

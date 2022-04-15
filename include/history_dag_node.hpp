@@ -12,7 +12,9 @@ class NodeStorage;
 template <typename T>
 class NodeView {
 public:
+	constexpr static const bool is_mutable = std::is_same_v<T, HistoryDAG&>;
 	NodeView(T dag, NodeId id);
+	inline operator Node() const;
 	const HistoryDAG& GetDAG() const;
 	NodeId GetId() const;
 	inline CollectionOf<char> auto GetSequence() const;

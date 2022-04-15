@@ -15,10 +15,24 @@ CollectionOf<Node> auto HistoryDAG::GetNodes() const {
 		});
 }
 
+CollectionOf<MutableNode> auto HistoryDAG::GetNodes() {
+	return nodes_ | std::views::transform(
+		[this, idx = size_t{}](NodeStorage&) mutable {
+			return MutableNode{*this, {idx++}};
+		});
+}
+
 CollectionOf<Edge> auto HistoryDAG::GetEdges() const {
 	return edges_ | std::views::transform(
 		[this, idx = size_t{}](const EdgeStorage&) mutable {
 			return Edge{*this, {idx++}};
+		});
+}
+
+CollectionOf<MutableEdge> auto HistoryDAG::GetEdges() {
+	return edges_ | std::views::transform(
+		[this, idx = size_t{}](EdgeStorage&) mutable {
+			return MutableEdge{*this, {idx++}};
 		});
 }
 
@@ -28,12 +42,28 @@ CollectionOf<Node> auto HistoryDAG::GetLeafs() const {
 		});
 }
 
+CollectionOf<MutableNode> auto HistoryDAG::GetLeafs() {
+	return leafs_ | std::views::transform([this](NodeId node_id) {
+			return MutableNode{*this, node_id};
+		});
+}
+
 CollectionOf<Node> auto HistoryDAG::TraversePreOrder() const {
 	return std::ranges::subrange(PreOrderIterator{GetRoot()},
-		PreOrderIterator{});
+		PreOrderIterator<Node>{});
+}
+
+CollectionOf<MutableNode> auto HistoryDAG::TraversePreOrder() {
+	return std::ranges::subrange(PreOrderIterator{GetRoot()},
+		PreOrderIterator<MutableNode>{});
 }
 
 CollectionOf<Node> auto HistoryDAG::TraversePostOrder() const {
 	return std::ranges::subrange(PostOrderIterator{GetRoot()},
-		PostOrderIterator{});
+		PostOrderIterator<Node>{});
+}
+
+CollectionOf<MutableNode> auto HistoryDAG::TraversePostOrder() {
+	return std::ranges::subrange(PostOrderIterator{GetRoot()},
+		PostOrderIterator<MutableNode>{});
 }

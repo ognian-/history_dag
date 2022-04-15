@@ -39,17 +39,25 @@ public:
 	void Finalize();
 	
 	inline CollectionOf<Node> auto GetNodes() const;
+	inline CollectionOf<MutableNode> auto GetNodes();
 	inline CollectionOf<Edge> auto GetEdges() const;
+	inline CollectionOf<MutableEdge> auto GetEdges();
 	
 	Node GetNode(NodeId id) const;
+	MutableNode GetNode(NodeId id);
 	Edge GetEdge(EdgeId id) const;
+	MutableEdge GetEdge(EdgeId id);
 
 	Node GetRoot() const;
+	MutableNode GetRoot();
 
 	inline CollectionOf<Node> auto GetLeafs() const;
+	inline CollectionOf<MutableNode> auto GetLeafs();
 
 	inline CollectionOf<Node> auto TraversePreOrder() const;
+	inline CollectionOf<MutableNode> auto TraversePreOrder();
 	inline CollectionOf<Node> auto TraversePostOrder() const;
+	inline CollectionOf<MutableNode> auto TraversePostOrder();
 	
 private:
 	template <typename> friend class NodeView;
@@ -68,3 +76,5 @@ private:
 #include "inl/history_dag_node_inl.hpp"
 #include "inl/history_dag_edge_inl.hpp"
 #include "inl/history_dag_inl.hpp"
+#include "inl/pre_order_iterator_inl.hpp"
+#include "inl/post_order_iterator_inl.hpp"
