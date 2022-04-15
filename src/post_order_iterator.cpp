@@ -1,6 +1,7 @@
 #include <cassert>
 
 #include "post_order_iterator.hpp"
+#include "history_dag.hpp"
 
 PostOrderIterator::PostOrderIterator(Node node) {
     stack_.push(*node.GetChildren().begin());

@@ -2,10 +2,10 @@
 
 #include <vector>
 
-#include "history_dag_edge.hpp"
+#include "history_dag_common.hpp"
 
 class NodeStorage {
-	friend class Node;
+	template <typename> friend class NodeView;
 	friend class HistoryDAG;
 	
 	void AddEdge(Edge edge, bool is_parent);

@@ -27,8 +27,6 @@
 
 #include "history_dag_node_storage.hpp"
 #include "history_dag_edge_storage.hpp"
-#include "pre_order_iterator.hpp"
-#include "post_order_iterator.hpp"
 
 class HistoryDAG {
 public:
@@ -54,8 +52,8 @@ public:
 	inline CollectionOf<Node> auto TraversePostOrder() const;
 	
 private:
-	friend class Node;
-	friend class Edge;
+	template <typename> friend class NodeView;
+	template <typename> friend class EdgeView;
 	
 	std::vector<NodeStorage> nodes_;
 	std::vector<EdgeStorage> edges_;
@@ -63,46 +61,10 @@ private:
 	std::vector<NodeId> leafs_;
 };
 
-///////////////////////////////////////////////////////////////////////////////
-
 #include "history_dag_node.hpp"
-
-template <typename Sequence>
-Node HistoryDAG::AddNode(NodeId id, Sequence&& sequence) {
-	assert(id.value != NoId);
-	auto& storage = GetOrInsert(nodes_, id);
-	storage.sequence_.clear();
-	std::copy(sequence.begin(), sequence.end(),
-		std::back_inserter(storage.sequence_));
-	return {*this, id};
-}
-
-CollectionOf<Node> auto HistoryDAG::GetNodes() const {
-	return nodes_ | std::views::transform(
-		[this, idx = size_t{}](const NodeStorage&) mutable {
-			return Node{*this, {idx++}};
-		});
-}
-
-CollectionOf<Edge> auto HistoryDAG::GetEdges() const {
-	return edges_ | std::views::transform(
-		[this, idx = size_t{}](const EdgeStorage&) mutable {
-			return Edge{*this, {idx++}};
-		});
-}
-
-CollectionOf<Node> auto HistoryDAG::GetLeafs() const {
-	return leafs_ | std::views::transform([this](NodeId node_id) {
-			return Node{*this, node_id};
-		});
-}
-
-CollectionOf<Node> auto HistoryDAG::TraversePreOrder() const {
-	return std::ranges::subrange(PreOrderIterator{GetRoot()},
-		PreOrderIterator{});
-}
-
-CollectionOf<Node> auto HistoryDAG::TraversePostOrder() const {
-	return std::ranges::subrange(PostOrderIterator{GetRoot()},
-		PostOrderIterator{});
-}
+#include "history_dag_edge.hpp"
+#include "pre_order_iterator.hpp"
+#include "post_order_iterator.hpp"
+#include "inl/history_dag_node_inl.hpp"
+#include "inl/history_dag_edge_inl.hpp"
+#include "inl/history_dag_inl.hpp"

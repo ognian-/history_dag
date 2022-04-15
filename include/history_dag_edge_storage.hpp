@@ -3,7 +3,7 @@
 #include "history_dag_common.hpp"
 
 class EdgeStorage {
-	friend class Edge;
+	template <typename> friend class EdgeView;
 	friend class HistoryDAG;
 	NodeId parent_;
 	NodeId child_;

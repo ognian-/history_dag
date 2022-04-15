@@ -6,7 +6,7 @@
 #include <stack>
 #include <optional>
 
-#include "history_dag_node.hpp"
+#include "history_dag_common.hpp"
 
 class PostOrderIterator {
 public:

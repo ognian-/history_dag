@@ -5,7 +5,7 @@
 #include <iterator>
 #include <stack>
 
-#include "history_dag_node.hpp"
+#include "history_dag_common.hpp"
 
 class PreOrderIterator {
 public:

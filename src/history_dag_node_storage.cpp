@@ -1,4 +1,4 @@
-#include "history_dag_node_storage.hpp"
+#include "history_dag.hpp"
 
 void NodeStorage::AddEdge(Edge edge, bool is_parent) {
 	if (is_parent) {

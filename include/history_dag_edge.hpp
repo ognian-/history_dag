@@ -11,22 +11,21 @@
 
 class HistoryDAG;
 class EdgeStorage;
-class Node;
 
-class Edge {
+template <typename T>
+class EdgeView {
 public:
-	Edge(const HistoryDAG& dag, EdgeId id);
+	EdgeView(T dag, EdgeId id);
 	const HistoryDAG& GetDAG() const;
 	EdgeId GetId() const;
 	Node GetParent() const;
 	Node GetChild() const;
 	size_t GetClade() const;
-	std::optional<Edge> FindNextSibling() const;
+	std::optional<EdgeView> FindNextSibling() const;
 private:
-	friend bool operator==(Edge, Edge);
+	template <typename U> friend bool operator==(EdgeView<U>, EdgeView<U>);
 	const EdgeStorage& GetStorage() const;
-	const HistoryDAG& dag_;
+
+	T dag_;
 	const EdgeId id_;
 };
-
-bool operator==(Edge lhs, Edge rhs);

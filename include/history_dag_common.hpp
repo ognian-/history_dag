@@ -43,3 +43,11 @@ concept CollectionOfCollections = std::ranges::view<T> &&
 	std::ranges::view<std::ranges::range_value_t<T>> &&
 	std::is_same_v<Value,
     std::ranges::range_value_t<std::ranges::range_value_t<T>>>;
+
+class HistoryDAG;
+template <typename T> class NodeView;
+using Node = NodeView<const HistoryDAG&>;
+using MutableNode = NodeView<HistoryDAG&>;
+template <typename T> class EdgeView;
+using Edge = EdgeView<const HistoryDAG&>;
+using MutableEdge = EdgeView<HistoryDAG&>;

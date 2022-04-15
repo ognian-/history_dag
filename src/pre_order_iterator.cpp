@@ -1,6 +1,7 @@
 #include <cassert>
 
 #include "pre_order_iterator.hpp"
+#include "history_dag.hpp"
 
 PreOrderIterator::PreOrderIterator(Node node) {
     stack_.push(*node.GetChildren().begin());
