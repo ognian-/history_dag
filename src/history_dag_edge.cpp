@@ -16,6 +16,21 @@ Node Edge::GetChild() const { return {dag_, GetStorage().child_}; }
 
 size_t Edge::GetClade() const { return GetStorage().clade_; }
 
+std::optional<Edge> Edge::FindNextSibling() const {
+	auto parent = GetParent();
+    auto child = GetChild();
+    auto children = parent.GetChildren();
+    for (auto i = children.begin(); i != children.end(); ++i) {
+        if ((*i).GetChild().GetId() == child.GetId()) {
+            if (++i != children.end()) {
+                return *i;
+            }
+            break;
+        }
+    }
+    return std::nullopt;
+}
+
 const EdgeStorage& Edge::GetStorage() const {
 	return dag_.edges_.at(id_.value);
 }

@@ -5,6 +5,8 @@
 */
 #pragma once
 
+#include <optional>
+
 #include "history_dag_common.hpp"
 
 class HistoryDAG;
@@ -19,6 +21,7 @@ public:
 	Node GetParent() const;
 	Node GetChild() const;
 	size_t GetClade() const;
+	std::optional<Edge> FindNextSibling() const;
 private:
 	friend bool operator==(Edge, Edge);
 	const EdgeStorage& GetStorage() const;

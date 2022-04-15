@@ -4,10 +4,11 @@
 #include <cstddef>
 #include <iterator>
 #include <stack>
+#include <optional>
 
 #include "history_dag_node.hpp"
 
-class PreOrderIterator {
+class PostOrderIterator {
 public:
 	using iterator_category = std::forward_iterator_tag;
 	using size_type = std::size_t;
@@ -18,18 +19,18 @@ public:
 	using const_pointer = const pointer;
 	using const_reference = const reference;
 
-	explicit PreOrderIterator(Node node);
-	PreOrderIterator() = default;
-	Node operator*() const;
-	PreOrderIterator& operator++();
-	PreOrderIterator operator++(int);
-	bool operator==(const PreOrderIterator& other) const;
-	bool operator!=(const PreOrderIterator& other) const;
+	explicit PostOrderIterator(Node node);
+	PostOrderIterator() = default;
+	Node operator*();
+	PostOrderIterator& operator++();
+	PostOrderIterator operator++(int);
+	bool operator==(const PostOrderIterator& other) const;
+	bool operator!=(const PostOrderIterator& other) const;
 
 private:
-
-	static std::optional<Edge> GetFirstChild(Edge edge);
+    void PushToNextLeaf();
 
 	std::stack<Edge> stack_;
-	bool root_visited_ = false;
+    bool visit_root_ = false;
+    bool end_sentinel_ = false;
 };

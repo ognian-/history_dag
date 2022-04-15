@@ -28,6 +28,7 @@
 #include "history_dag_node_storage.hpp"
 #include "history_dag_edge_storage.hpp"
 #include "pre_order_iterator.hpp"
+#include "post_order_iterator.hpp"
 
 class HistoryDAG {
 public:
@@ -50,6 +51,7 @@ public:
 	inline CollectionOf<Node> auto GetLeafs() const;
 
 	inline CollectionOf<Node> auto TraversePreOrder() const;
+	inline CollectionOf<Node> auto TraversePostOrder() const;
 	
 private:
 	friend class Node;
@@ -98,4 +100,9 @@ CollectionOf<Node> auto HistoryDAG::GetLeafs() const {
 CollectionOf<Node> auto HistoryDAG::TraversePreOrder() const {
 	return std::ranges::subrange(PreOrderIterator{GetRoot()},
 		PreOrderIterator{});
+}
+
+CollectionOf<Node> auto HistoryDAG::TraversePostOrder() const {
+	return std::ranges::subrange(PostOrderIterator{GetRoot()},
+		PostOrderIterator{});
 }

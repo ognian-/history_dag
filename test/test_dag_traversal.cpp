@@ -30,8 +30,33 @@ static void test_pre_order() {
     assert_equal(Recurse{}(dag.GetRoot()), result, "Pre-order");
 }
 
+static void test_post_order() {
+    HistoryDAG dag = GenerateRandomDag({
+        "TT", "CC", "GA", "AA", "CA", "GG",
+    });
+
+    struct Recurse {
+        std::vector<NodeId> operator()(Node node) {
+            std::vector<NodeId> result;
+            for (auto i : node.GetChildren()) {
+                std::vector<NodeId> rec = Recurse{}(i.GetChild());
+                result.insert(result.end(), rec.begin(), rec.end());
+            }
+            result.push_back(node.GetId());
+            return result;
+        }
+    };
+
+    std::vector<NodeId> result;
+    for (Node node : dag.TraversePostOrder()) {
+        result.push_back(node.GetId());
+    }
+    assert_equal(Recurse{}(dag.GetRoot()), result, "Post-order");
+}
+
 static void run_test() {
 	test_pre_order();
+    test_post_order();
 }
 
 [[maybe_unused]] static const auto test_added = add_test({
