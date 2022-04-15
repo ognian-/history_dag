@@ -1,9 +1,15 @@
 #include "history_dag.hpp"
 
-void NodeStorage::AddEdge(Edge edge, bool is_parent) {
-	if (is_parent) {
-		GetOrInsert(clades_, edge.GetClade()).push_back(edge.GetId());
+void NodeStorage::ClearConnections() {
+	parents_.clear();
+	clades_.clear();
+	leafs_below_.clear();
+}
+
+void NodeStorage::AddEdge(size_t clade, EdgeId id, bool this_node_is_parent) {
+	if (this_node_is_parent) {
+		GetOrInsert(clades_, clade).push_back(id);
 	} else {
-		parents_.push_back(edge.GetId());
+		parents_.push_back(id);
 	}
 }

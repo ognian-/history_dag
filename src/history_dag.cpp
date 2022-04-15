@@ -9,12 +9,18 @@ Edge HistoryDAG::AddEdge(EdgeId id, Node parent, Node child, size_t clade) {
 	return {*this, id};
 }
 
-void HistoryDAG::Finalize() {
+void HistoryDAG::BuildConnections() {
 	root_ = {NoId};
 	leafs_ = {};
-	for (auto edge : GetEdges()) {
-		nodes_.at(edge.GetParent().GetId().value).AddEdge(edge, true);
-		nodes_.at(edge.GetChild().GetId().value).AddEdge(edge, false);
+	size_t edge_id = 0;
+	for (auto& edge : edges_) {
+		auto& parent = nodes_.at(edge.parent_.value);
+		auto& child = nodes_.at(edge.child_.value);
+		parent.ClearConnections();
+		child.ClearConnections();
+		parent.AddEdge(edge.clade_, {edge_id}, true);
+		child.AddEdge(edge.clade_, {edge_id}, false);
+		++edge_id;
 	}
 	for (auto node : GetNodes()) {
 		if (node.IsRoot()) {

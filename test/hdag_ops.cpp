@@ -51,7 +51,7 @@ HistoryDAG GenerateRandomDag(std::vector<std::string> leaf_sequences) {
 	
 	GenerateParents(dag, leaf_ids);
 	
-	dag.Finalize();
+	dag.BuildConnections();
 
 	return dag;
 }
@@ -73,7 +73,7 @@ HistoryDAG GenerateBinaryTree() {
     dag.AddEdge({11}, dag.GetNode({13}), dag.GetNode({11}), 0);
     dag.AddEdge({12}, dag.GetNode({14}), dag.GetNode({12}), 0);
     dag.AddEdge({13}, dag.GetNode({14}), dag.GetNode({13}), 0);
-    dag.Finalize();
+    dag.BuildConnections();
 	return dag;
 }
 

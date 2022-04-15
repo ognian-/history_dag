@@ -80,6 +80,6 @@ public:
             i.clade_annotations().end()});
     }
 
-    dag.Finalize();
+    dag.BuildConnections();
     return dag;
 }

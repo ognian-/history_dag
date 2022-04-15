@@ -4,7 +4,7 @@
 
   Populating with data should be performed by first adding all nodes by the
   AddNode() function, then adding all the edges with AddEdge() and finally
-  calling Finalize().
+  calling BuildConnections().
 
   NodeId and EdgeId are strongly typed wrappers around size_t, and data is
   stored internally by the order of its IDs.
@@ -36,7 +36,7 @@ public:
 	
 	Edge AddEdge(EdgeId id, Node parent, Node child, size_t clade);
 
-	void Finalize();
+	void BuildConnections();
 	
 	inline CollectionOf<Node> auto GetNodes() const;
 	inline CollectionOf<MutableNode> auto GetNodes();

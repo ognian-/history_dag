@@ -8,7 +8,8 @@ class NodeStorage {
 	template <typename> friend class NodeView;
 	friend class HistoryDAG;
 	
-	void AddEdge(Edge edge, bool is_parent);
+	void ClearConnections();
+	void AddEdge(size_t clade, EdgeId id, bool this_node_is_parent);
 
 	std::vector<char> sequence_;
 	std::vector<EdgeId> parents_;

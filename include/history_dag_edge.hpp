@@ -17,7 +17,7 @@ class EdgeView {
 public:
 	constexpr static const bool is_mutable = std::is_same_v<T, HistoryDAG&>;
 	EdgeView(T dag, EdgeId id);
-	inline operator Edge() const;
+	operator Edge() const;
 	const HistoryDAG& GetDAG() const;
 	EdgeId GetId() const;
 	Node GetParent() const;
