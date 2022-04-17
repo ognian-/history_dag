@@ -67,3 +67,16 @@ CollectionOf<MutableNode> auto HistoryDAG::TraversePostOrder() {
 	return std::ranges::subrange(PostOrderIterator{GetRoot()},
 		PostOrderIterator<MutableNode>{});
 }
+
+CounterMap<HistoryDAG::Weight> HistoryDAG::WeightCount(auto&& leaf_func,
+	auto&& edge_weight_func,
+	auto&& accum_func) requires requires {
+		{ leaf_func(std::declval<Node>()) } -> std::convertible_to<Weight>;
+		{ edge_weight_func(std::declval<Edge>()) } ->
+			std::convertible_to<Weight>;
+		{ accum_func(
+			std::declval<std::ranges::ref_view<std::vector<Weight>>>()
+			) } -> std::convertible_to<Weight>;
+	} {
+	return {};
+}

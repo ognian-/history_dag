@@ -12,6 +12,14 @@ static void test_loading() {
     HistoryDAG dag = LoadHistoryDAG("data/1final-tree-1.nh1.pb.gz");
     load_time.stop();
     // std::cout << "\nDAG loaded in " << load_time.durationMs() << " ms\n";
+
+    dag.WeightCount([](Node) {
+        return 0.0;
+    }, [](Edge) {
+        return 1.0;
+    }, [](CollectionOf<HistoryDAG::Weight> auto) {
+        return 2.0;
+    });
 }
 
 static void run_test() {
