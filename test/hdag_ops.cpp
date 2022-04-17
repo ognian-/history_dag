@@ -9,7 +9,7 @@ static void GenerateParents(HistoryDAG& dag,
 	std::vector<size_t> parents;
 	
 	for (size_t i = 0; i < children.size(); i += 2) {
-		Node parent = dag.AddNode({dag.GetNodes().size()}, std::string{});
+		Node parent = dag.AddNode({dag.GetNodes().size()});
 		dag.AddEdge({dag.GetEdges().size()}, parent,
 			dag.GetNode({children[i]}), 0);
 		if (i + 1 < children.size()) {
@@ -23,7 +23,7 @@ static void GenerateParents(HistoryDAG& dag,
 	}
 	
 	if (parents.size() == 2) {
-		Node root = dag.AddNode({dag.GetNodes().size()}, std::string{});
+		Node root = dag.AddNode({dag.GetNodes().size()});
 		dag.AddEdge({dag.GetEdges().size()}, root,
 			dag.GetNode({parents[0]}), 0);
 		dag.AddEdge({dag.GetEdges().size()}, root,
@@ -42,7 +42,7 @@ HistoryDAG GenerateRandomDag(std::vector<std::string> leaf_sequences) {
 
 	HistoryDAG dag;
 	for (size_t i = 0; i < leaf_sequences.size(); ++i) {
-		dag.AddNode({i}, leaf_sequences[i]);
+		dag.AddNode({i});
 	}
 	std::vector<size_t> leaf_ids;
 	leaf_ids.resize(leaf_sequences.size());
@@ -58,7 +58,7 @@ HistoryDAG GenerateRandomDag(std::vector<std::string> leaf_sequences) {
 
 HistoryDAG GenerateBinaryTree() {
     HistoryDAG dag;
-    for (size_t i = 0; i < 15; ++i) dag.AddNode({i}, std::string{});
+    for (size_t i = 0; i < 15; ++i) dag.AddNode({i});
     dag.AddEdge({0}, dag.GetNode({8}), dag.GetNode({0}), 0);
     dag.AddEdge({1}, dag.GetNode({8}), dag.GetNode({1}), 0);
     dag.AddEdge({2}, dag.GetNode({9}), dag.GetNode({2}), 0);

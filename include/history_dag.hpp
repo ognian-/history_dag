@@ -36,8 +36,7 @@ public:
 	using Weight = double;
 	using ArbitraryPrecisionInteger = long;
 	
-	template <typename Sequence>
-	Node AddNode(NodeId id, Sequence&& sequence);
+	Node AddNode(NodeId id);
 	
 	Edge AddEdge(EdgeId id, Node parent, Node child, size_t clade);
 

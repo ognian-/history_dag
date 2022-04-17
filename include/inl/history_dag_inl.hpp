@@ -1,13 +1,3 @@
-template <typename Sequence>
-Node HistoryDAG::AddNode(NodeId id, Sequence&& sequence) {
-	assert(id.value != NoId);
-	auto& storage = GetOrInsert(nodes_, id);
-	storage.sequence_.clear();
-	std::copy(sequence.begin(), sequence.end(),
-		std::back_inserter(storage.sequence_));
-	return {*this, id};
-}
-
 CollectionOf<Node> auto HistoryDAG::GetNodes() const {
 	return nodes_ | std::views::transform(
 		[this, idx = size_t{}](const NodeStorage&) mutable {

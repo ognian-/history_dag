@@ -43,7 +43,7 @@ public:
     ParseNewick(data.newick(), [&](size_t id, std::string label,
         std::optional<double> branch_length) {
             node_ids[label] = id;
-            dag.AddNode({id}, std::ranges::empty_view<char>{});
+            dag.AddNode({id});
             std::ignore = branch_length;
         }, [&](size_t parent, size_t child) {
             dag.AddEdge({edge_id++}, dag.GetNode({parent}),

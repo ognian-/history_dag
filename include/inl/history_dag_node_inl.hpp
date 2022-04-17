@@ -21,7 +21,8 @@ NodeId NodeView<T>::GetId() const { return id_; }
 
 template <typename T>
 CollectionOf<char> auto NodeView<T>::GetSequence() const {
-	return std::ranges::ref_view(GetStorage().sequence_);
+	// TODO implement
+	return std::ranges::empty_view<char>{};
 }
 
 template <typename T>

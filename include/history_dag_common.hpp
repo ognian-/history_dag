@@ -24,7 +24,7 @@ inline bool operator==(EdgeId lhs, EdgeId rhs) {
 }
 
 template <typename T, typename Id>
-static T& GetOrInsert(std::vector<T>& data, Id id) {
+[[nodiscard]] static T& GetOrInsert(std::vector<T>& data, Id id) {
 	if constexpr (std::is_same_v<Id, size_t>) {
 		if (id >= data.size()) data.resize(id + 1);
 		return data[id];

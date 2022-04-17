@@ -1,5 +1,11 @@
 #include "history_dag.hpp"
 
+Node HistoryDAG::AddNode(NodeId id) {
+	assert(id.value != NoId);
+	[[maybe_unused]] auto& storage = GetOrInsert(nodes_, id);
+	return {*this, id};
+}
+
 Edge HistoryDAG::AddEdge(EdgeId id, Node parent, Node child, size_t clade) {
 	assert(id.value != NoId);
 	auto& storage = GetOrInsert(edges_, id);
