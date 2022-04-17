@@ -16,3 +16,10 @@ CollectionOf<char> auto Mutation::GetMutatedNucleotide() const {
     return std::ranges::subrange(std::begin(mutated_nucleotide_),
             std::end(mutated_nucleotide_));
 }
+
+bool Mutation::operator<(const Mutation& rhs) const {
+    return position_ < rhs.position_ &&
+        reference_nucleotide_ < rhs.reference_nucleotide_ &&
+        parent_nucleotide_ < rhs.parent_nucleotide_ &&
+        mutated_nucleotide_ < rhs.mutated_nucleotide_;
+}

@@ -10,6 +10,7 @@ class NodeStorage {
 	
 	void ClearConnections();
 	void AddEdge(size_t clade, EdgeId id, bool this_node_is_parent);
+	void RemoveEdge(Edge edge, bool this_node_is_parent);
 
 	std::vector<char> sequence_;
 	std::vector<EdgeId> parents_;

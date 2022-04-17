@@ -1,3 +1,4 @@
+#include <set>
 #include "history_dag_node_storage.hpp"
 
 template <typename T>
@@ -61,6 +62,36 @@ bool NodeView<T>::IsRoot() const {
 template <typename T>
 bool NodeView<T>::IsLeaf() const {
 	return GetChildren().begin() == GetChildren().end();
+}
+
+template <typename T>
+void NodeView<T>::AddParentEdge(Edge edge) {
+	GetStorage().AddEdge(edge.GetClade(), edge.GetId(), false);
+}
+
+template <typename T>
+void NodeView<T>::AddChildEdge(Edge edge) {
+	GetStorage().AddEdge(edge.GetClade(), edge.GetId(), true);
+}
+
+template <typename T>
+void NodeView<T>::RemoveParentEdge(Edge edge) {
+	GetStorage().RemoveEdge(edge, false);
+}
+
+template <typename T>
+auto NodeView<T>::BuildMutsRelReference() const {
+	std::set<Mutation> muts;
+    NodeId current_node = id_;
+    while (not dag_.GetNode(current_node).IsRoot()) {
+        /*current_node must then have a parent edge*/
+        Edge parent_edge = *dag_.GetNode(current_node).GetParents().begin();
+        for (auto mut : parent_edge.GetMutations()){
+            muts.insert(mut);
+        }
+        current_node = parent_edge.GetParent().GetId();
+    }
+    return muts;
 }
 
 template <typename T>

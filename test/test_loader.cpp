@@ -20,6 +20,8 @@ static void test_loading() {
     }, [](CollectionOf<HistoryDAG::Weight> auto) {
         return 2.0;
     });
+
+    (*dag.GetLeafs().begin()).BuildMutsRelReference();
 }
 
 static void run_test() {

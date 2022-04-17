@@ -29,7 +29,7 @@ public:
 	void AddParentEdge(Edge edge);
 	void AddChildEdge(Edge edge);
 	void RemoveParentEdge(Edge edge);
-	CollectionOf<Mutation> auto BuildMutsRelReference() const;
+	auto BuildMutsRelReference() const;
 private:
 	template <typename U> friend bool operator==(NodeView<U>, NodeView<U>);
 	const NodeStorage& GetStorage() const;

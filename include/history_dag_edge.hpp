@@ -22,7 +22,7 @@ public:
 	Node GetParent() const;
 	Node GetChild() const;
 	size_t GetClade() const;
-	CollectionOf<const Mutation> auto GetMutations() const;
+	CollectionOf<Mutation> auto GetMutations() const;
     double GetProbability() const;
 	const auto& GetWeight() const;
 	std::optional<EdgeView> FindNextSibling() const;

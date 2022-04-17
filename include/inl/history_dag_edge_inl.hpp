@@ -29,7 +29,7 @@ template <typename T>
 size_t EdgeView<T>::GetClade() const { return GetStorage().clade_; }
 
 template <typename T>
-CollectionOf<const Mutation> auto EdgeView<T>::GetMutations() const {
+CollectionOf<Mutation> auto EdgeView<T>::GetMutations() const {
     return std::ranges::subrange(std::begin(GetStorage().mutations_),
         std::end(GetStorage().mutations_));
 }

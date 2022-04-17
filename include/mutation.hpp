@@ -15,6 +15,8 @@ public:
     inline char GetParentNucleotide() const;
     inline CollectionOf<char> auto GetMutatedNucleotide() const;
 
+    inline bool operator<(const Mutation& rhs) const;
+
 private:
     size_t position_ = NoId;
     char reference_nucleotide_ = 0;

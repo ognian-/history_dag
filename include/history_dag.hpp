@@ -141,3 +141,4 @@ private:
 #include "inl/history_dag_inl.hpp"
 #include "inl/pre_order_iterator_inl.hpp"
 #include "inl/post_order_iterator_inl.hpp"
+#include "inl/mutation_inl.hpp"
