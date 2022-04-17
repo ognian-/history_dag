@@ -1,0 +1,18 @@
+Mutation::Mutation(size_t position, char reference_nucleotide,
+    char parent_nucleotide, const auto& mutated_nucleotide) :
+        position_{position},
+        reference_nucleotide_{reference_nucleotide},
+        parent_nucleotide_{parent_nucleotide},
+        mutated_nucleotide_{std::begin(mutated_nucleotide),
+            std::end(mutated_nucleotide)} {}
+	
+size_t Mutation::GetPosition() const { return position_; }
+
+char Mutation::GetReferenceNucleotide() const { return reference_nucleotide_; }
+
+char Mutation::GetParentNucleotide() const { return parent_nucleotide_; }
+
+CollectionOf<char> auto Mutation::GetMutatedNucleotide() const {
+    return std::ranges::subrange(std::begin(mutated_nucleotide_),
+            std::end(mutated_nucleotide_));
+}

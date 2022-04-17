@@ -29,6 +29,22 @@ template <typename T>
 size_t EdgeView<T>::GetClade() const { return GetStorage().clade_; }
 
 template <typename T>
+CollectionOf<const Mutation> auto EdgeView<T>::GetMutations() const {
+    return std::ranges::subrange(std::begin(GetStorage().mutations_),
+        std::end(GetStorage().mutations_));
+}
+
+template <typename T>
+double EdgeView<T>::GetProbability() const {
+    return GetStorage().probability_;
+}
+
+template <typename T>
+const auto& EdgeView<T>::GetWeight() const {
+    GetStorage().weight_;
+}
+
+template <typename T>
 std::optional<EdgeView<T>> EdgeView<T>::FindNextSibling() const {
 	auto parent = GetParent();
     auto child = GetChild();
@@ -45,7 +61,17 @@ std::optional<EdgeView<T>> EdgeView<T>::FindNextSibling() const {
 }
 
 template <typename T>
-const EdgeStorage& EdgeView<T>::GetStorage() const {
+void EdgeView<T>::AddMutation(const Mutation& mutation) {
+    GetStorage().AddMutation(mutation);
+}
+
+template <typename T>
+void EdgeView<T>::ClearMutations() {
+    GetStorage().ClearMutations();
+}
+
+template <typename T>
+const auto& EdgeView<T>::GetStorage() const {
 	return dag_.edges_.at(id_.value);
 }
 

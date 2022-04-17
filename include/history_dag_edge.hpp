@@ -10,7 +10,6 @@
 #include "history_dag_common.hpp"
 
 class HistoryDAG;
-class EdgeStorage;
 
 template <typename T>
 class EdgeView {
@@ -23,10 +22,16 @@ public:
 	Node GetParent() const;
 	Node GetChild() const;
 	size_t GetClade() const;
+	CollectionOf<const Mutation> auto GetMutations() const;
+    double GetProbability() const;
+	const auto& GetWeight() const;
 	std::optional<EdgeView> FindNextSibling() const;
+
+	void AddMutation(const Mutation& mutation);
+    void ClearMutations();
 private:
 	template <typename U> friend bool operator==(EdgeView<U>, EdgeView<U>);
-	const EdgeStorage& GetStorage() const;
+	const auto& GetStorage() const;
 
 	T dag_;
 	const EdgeId id_;

@@ -30,6 +30,8 @@
 
 class HistoryDAG {
 public:
+
+	using Weight = double;
 	
 	template <typename Sequence>
 	Node AddNode(NodeId id, Sequence&& sequence);
@@ -64,7 +66,7 @@ private:
 	template <typename> friend class EdgeView;
 	
 	std::vector<NodeStorage> nodes_;
-	std::vector<EdgeStorage> edges_;
+	std::vector<EdgeStorage<Weight>> edges_;
 	NodeId root_ = {NoId};
 	std::vector<NodeId> leafs_;
 };

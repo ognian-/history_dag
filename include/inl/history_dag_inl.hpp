@@ -24,14 +24,14 @@ CollectionOf<MutableNode> auto HistoryDAG::GetNodes() {
 
 CollectionOf<Edge> auto HistoryDAG::GetEdges() const {
 	return edges_ | std::views::transform(
-		[this, idx = size_t{}](const EdgeStorage&) mutable {
+		[this, idx = size_t{}](const EdgeStorage<Weight>&) mutable {
 			return Edge{*this, {idx++}};
 		});
 }
 
 CollectionOf<MutableEdge> auto HistoryDAG::GetEdges() {
 	return edges_ | std::views::transform(
-		[this, idx = size_t{}](EdgeStorage&) mutable {
+		[this, idx = size_t{}](EdgeStorage<Weight>&) mutable {
 			return MutableEdge{*this, {idx++}};
 		});
 }
