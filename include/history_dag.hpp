@@ -30,6 +30,20 @@
 #include "history_dag_edge_storage.hpp"
 #include "counter_map.hpp"
 
+template <typename T, typename Weight>
+	concept LeafFunc = std::invocable<T, Node> &&
+		std::convertible_to<std::invoke_result_t<T, Node>, Weight>;
+
+template <typename T, typename Weight>
+	concept EdgeWeightFunc = std::invocable<T, Edge> &&
+		std::convertible_to<std::invoke_result_t<T, Edge>, Weight>;
+
+template <typename T, typename Weight>
+	concept AccumFunc = std::invocable<T,
+		std::ranges::ref_view<std::vector<Weight>>> &&
+		std::convertible_to<std::invoke_result_t<T,
+			std::ranges::ref_view<std::vector<Weight>>>, Weight>;
+
 class HistoryDAG {
 public:
 
@@ -71,55 +85,25 @@ public:
     void Merge(CollectionOf<const HistoryDAG> auto);
     void AddAllAllowedEdges();
 
-	void PostorderHistoryWeightAccumulation(auto&& leaf_func,
-		auto&& edge_weight_func, auto&& accum_within_clade,
-		auto&& accum_between_clade) requires requires {
-		{ leaf_func(std::declval<Node>()) } -> std::convertible_to<Weight>;
-		{ edge_weight_func(std::declval<Edge>()) } ->
-			std::convertible_to<Weight>;
-		{ accum_within_clade(
-			std::declval<std::ranges::ref_view<std::vector<Weight>>>()
-			) } -> std::convertible_to<Weight>;
-		{ accum_between_clade(
-			std::declval<std::ranges::ref_view<std::vector<Weight>>>()
-			) } -> std::convertible_to<Weight>;
-	};
+	void PostorderHistoryWeightAccumulation(
+		LeafFunc<Weight> auto&& leaf_func,
+		EdgeWeightFunc<Weight> auto&& edge_weight_func,
+		AccumFunc<Weight> auto&& accum_within_clade,
+		AccumFunc<Weight> auto&& accum_between_clade);
 
-	CounterMap<Weight> WeightCount(auto&& leaf_func, auto&& edge_weight_func,
-		auto&& accum_func) requires requires {
-		{ leaf_func(std::declval<Node>()) } -> std::convertible_to<Weight>;
-		{ edge_weight_func(std::declval<Edge>()) } ->
-			std::convertible_to<Weight>;
-		{ accum_func(
-			std::declval<std::ranges::ref_view<std::vector<Weight>>>()
-			) } -> std::convertible_to<Weight>;
-	};
+	CounterMap<Weight> WeightCount(LeafFunc<Weight> auto&& leaf_func,
+		EdgeWeightFunc<Weight> auto&& edge_weight_func,
+		AccumFunc<Weight> auto&& accum_func);
 
-	Weight OptimalWeightAnnotate(auto&& leaf_func, auto&& edge_weight_func,
-		auto&& accum_func, auto&& optimal_func) requires requires {
-		{ leaf_func(std::declval<Node>()) } -> std::convertible_to<Weight>;
-		{ edge_weight_func(std::declval<Edge>()) } ->
-			std::convertible_to<Weight>;
-		{ accum_func(
-			std::declval<std::ranges::ref_view<std::vector<Weight>>>()
-			) } -> std::convertible_to<Weight>;
-		{ optimal_func(
-			std::declval<std::ranges::ref_view<std::vector<Weight>>>()
-			) } -> std::convertible_to<Weight>;
-	};
+	Weight OptimalWeightAnnotate(LeafFunc<Weight> auto&& leaf_func,
+		EdgeWeightFunc<Weight> auto&& edge_weight_func,
+		AccumFunc<Weight> auto&& accum_func,
+		AccumFunc<Weight> auto&& optimal_func);
 
-	void TrimOptimalWeight(auto&& leaf_func, auto&& edge_weight_func,
-		auto&& accum_func, auto&& optimal_func) requires requires {
-		{ leaf_func(std::declval<Node>()) } -> std::convertible_to<Weight>;
-		{ edge_weight_func(std::declval<Edge>()) } ->
-			std::convertible_to<Weight>;
-		{ accum_func(
-			std::declval<std::ranges::ref_view<std::vector<Weight>>>()
-			) } -> std::convertible_to<Weight>;
-		{ optimal_func(
-			std::declval<std::ranges::ref_view<std::vector<Weight>>>()
-			) } -> std::convertible_to<Weight>;
-	};
+	void TrimOptimalWeight(LeafFunc<Weight> auto&& leaf_func,
+		EdgeWeightFunc<Weight> auto&& edge_weight_func,
+		AccumFunc<Weight> auto&& accum_func,
+		AccumFunc<Weight> auto&& optimal_fun);
 	
 private:
 	template <typename> friend class NodeView;
