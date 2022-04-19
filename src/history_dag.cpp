@@ -18,10 +18,13 @@ Edge HistoryDAG::AddEdge(EdgeId id, Node parent, Node child, size_t clade) {
 void HistoryDAG::BuildConnections() {
 	root_ = {NoId};
 	leafs_ = {};
-	size_t edge_id = 0;
+	nodes_leafs_below_.clear();
+	nodes_leafs_below_.resize(nodes_.size());
+
 	for (auto& node : nodes_) {
 		node.ClearConnections();
 	}
+	size_t edge_id = 0;
 	for (auto& edge : edges_) {
 		auto& parent = nodes_.at(edge.parent_.value);
 		auto& child = nodes_.at(edge.child_.value);
@@ -40,13 +43,14 @@ void HistoryDAG::BuildConnections() {
 	for (auto node : TraversePostOrder()) {
 		for (auto child : node.GetChildren() |
 			std::views::transform(Transform::GetChild)) {
+			
 			if (child.IsLeaf()) {
-				nodes_[node.GetId().value].AddLeafsBelow(
-					std::ranges::single_view{child.GetId()});
+				nodes_leafs_below_[node.GetId().value].insert(child.GetId());
 			} else {
-				nodes_[node.GetId().value].AddLeafsBelow(
-					child.GetLeafsBelow() |
-					std::views::transform(Transform::GetId));
+				auto leafs = child.GetLeafsBelow() |
+					std::views::transform(Transform::GetId);
+				nodes_leafs_below_[node.GetId().value].insert(
+					std::begin(leafs), std::end(leafs));
 			}
 		}
 	}

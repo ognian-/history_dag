@@ -34,8 +34,7 @@ size_t EdgeView<T>::GetClade() const { return GetStorage().clade_; }
 
 template <typename T>
 CollectionOf<Mutation> auto EdgeView<T>::GetMutations() const {
-    return std::ranges::subrange(std::begin(GetStorage().mutations_),
-        std::end(GetStorage().mutations_));
+    return std::views::all(dag_.edges_mutations_[id_.value]);
 }
 
 template <typename T>
@@ -66,12 +65,12 @@ std::optional<EdgeView<T>> EdgeView<T>::FindNextSibling() const {
 
 template <typename T>
 void EdgeView<T>::AddMutation(const Mutation& mutation) {
-    GetStorage().AddMutation(mutation);
+    GetOrInsert(dag_.edges_mutations_, id_).push_back(mutation);
 }
 
 template <typename T>
 void EdgeView<T>::ClearMutations() {
-    GetStorage().ClearMutations();
+    GetOrInsert(dag_.edges_mutations_, id_).clear();
 }
 
 template <typename T>

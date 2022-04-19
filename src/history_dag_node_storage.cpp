@@ -3,7 +3,6 @@
 void NodeStorage::ClearConnections() {
 	parents_.clear();
 	clades_.clear();
-	leafs_below_.clear();
 }
 
 void NodeStorage::AddEdge(size_t clade, EdgeId id, bool this_node_is_parent) {

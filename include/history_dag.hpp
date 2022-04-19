@@ -110,7 +110,11 @@ private:
 	template <typename> friend class EdgeView;
 	
 	std::vector<NodeStorage> nodes_;
+	std::vector<std::set<NodeId>> nodes_leafs_below_;
+
 	std::vector<EdgeStorage<Weight>> edges_;
+	std::vector<std::vector<Mutation>> edges_mutations_;
+
 	NodeId root_ = {NoId};
 	std::vector<NodeId> leafs_;
 };

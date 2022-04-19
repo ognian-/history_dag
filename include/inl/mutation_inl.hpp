@@ -13,8 +13,7 @@ char Mutation::GetReferenceNucleotide() const { return reference_nucleotide_; }
 char Mutation::GetParentNucleotide() const { return parent_nucleotide_; }
 
 CollectionOf<char> auto Mutation::GetMutatedNucleotide() const {
-    return std::ranges::subrange(std::begin(mutated_nucleotide_),
-            std::end(mutated_nucleotide_));
+    return std::views::all(mutated_nucleotide_);
 }
 
 bool Mutation::operator<(const Mutation& rhs) const {
