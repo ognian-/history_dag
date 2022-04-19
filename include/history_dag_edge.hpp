@@ -15,12 +15,13 @@ template <typename T>
 class EdgeView {
 public:
 	constexpr static const bool is_mutable = std::is_same_v<T, HistoryDAG&>;
+	using NodeType = std::conditional_t<is_mutable, MutableNode, Node>;
 	EdgeView(T dag, EdgeId id);
 	operator Edge() const;
 	const HistoryDAG& GetDAG() const;
 	EdgeId GetId() const;
-	Node GetParent() const;
-	Node GetChild() const;
+	NodeType GetParent() const;
+	NodeType GetChild() const;
 	size_t GetClade() const;
 	CollectionOf<Mutation> auto GetMutations() const;
     double GetProbability() const;
@@ -32,6 +33,7 @@ public:
 private:
 	template <typename U> friend bool operator==(EdgeView<U>, EdgeView<U>);
 	const auto& GetStorage() const;
+	auto& GetStorage();
 
 	T dag_;
 	const EdgeId id_;

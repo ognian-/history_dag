@@ -18,14 +18,11 @@ public:
 	using pointer = value_type*;
 	using reference = value_type&;
 	using const_pointer = const pointer;
-	using const_reference = const reference;
+	using const_reference = const value_type&;
 
 	explicit PostOrderIterator(NodeType node);
 	PostOrderIterator() = default;
-	template <typename U = NodeType, typename =
-		std::enable_if_t<U::is_mutable>>
-	MutableNode operator*() const;
-	Node operator*() const;
+	NodeType operator*() const;
 	PostOrderIterator& operator++();
 	PostOrderIterator operator++(int);
 	bool operator==(const PostOrderIterator& other) const;

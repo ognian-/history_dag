@@ -58,6 +58,12 @@ CollectionOf<MutableNode> auto HistoryDAG::TraversePostOrder() {
 		PostOrderIterator<MutableNode>{});
 }
 
+HistoryDAG HistoryDAG::Merge(const HistoryDAG& /*source*/) {
+	HistoryDAG result;
+
+	return result;
+}
+
 CounterMap<HistoryDAG::Weight> HistoryDAG::WeightCount(
 	LeafFunc<HistoryDAG::Weight> auto&& /*leaf_func*/,
 	EdgeWeightFunc<HistoryDAG::Weight> auto&& /*edge_weight_func*/,

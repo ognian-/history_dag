@@ -35,14 +35,17 @@ template <typename T, typename Id>
 }
 
 template <typename T, typename Value>
-concept CollectionOf = std::ranges::view<T> &&
-	std::is_same_v<Value, std::ranges::range_value_t<T>>;
+concept CollectionOf = std::ranges::view<T>;
+	// && std::same_as<std::ranges::range_value_t<T>, Value>;
+	// GCC bug 97402: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=97402
+	// Fixed in GCC 11.1, should be commented for now to keep working
+	// on GCC 10.
 
 template <typename T, typename Value>
 concept CollectionOfCollections = std::ranges::view<T> &&
-	std::ranges::view<std::ranges::range_value_t<T>> &&
-	std::is_same_v<Value,
-    std::ranges::range_value_t<std::ranges::range_value_t<T>>>;
+	std::ranges::view<std::ranges::range_value_t<T>>;
+	// && std::same_as<std::ranges::range_value_t<std::ranges::range_value_t<T>>,
+	// Value>;
 
 class HistoryDAG;
 template <typename T> class NodeView;

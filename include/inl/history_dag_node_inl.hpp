@@ -26,32 +26,32 @@ CollectionOf<char> auto NodeView<T>::GetSequence() const {
 }
 
 template <typename T>
-CollectionOf<Edge> auto NodeView<T>::GetParents() const {
+auto NodeView<T>::GetParents() const -> CollectionOf<EdgeType> auto {
 	return GetStorage().parents_ | std::views::transform([this](EdgeId idx) {
-		return Edge{dag_, idx};
+		return EdgeType{dag_, idx};
 	});
 }
 
 template <typename T>
-CollectionOfCollections<Edge> auto NodeView<T>::GetClades() const {
+auto NodeView<T>::GetClades() const -> CollectionOfCollections<EdgeType> auto {
 	return GetStorage().clades_ | std::views::transform(
 		[this](const std::vector<EdgeId>& clade) {
 			return clade | std::views::transform([this](EdgeId idx) {
-				return Edge{dag_, idx};
+				return EdgeType{dag_, idx};
 			});
 		});
 }
 
 template <typename T>
-CollectionOf<Edge> auto NodeView<T>::GetChildren() const {
+auto NodeView<T>::GetChildren() const -> CollectionOf<EdgeType> auto {
 	return GetClades() | std::views::join;
 }
 
 template <typename T>
-CollectionOf<Node> auto NodeView<T>::GetLeafsBelow() const {
+auto NodeView<T>::GetLeafsBelow() const -> CollectionOf<NodeType> auto {
 	return GetStorage().leafs_below_ | std::views::transform(
 		[*this](NodeId idx) {
-			return Node{dag_, idx};
+			return NodeType{dag_, idx};
 		});
 }
 
@@ -97,6 +97,11 @@ auto NodeView<T>::BuildMutsRelReference() const {
 
 template <typename T>
 const NodeStorage& NodeView<T>::GetStorage() const {
+	return dag_.nodes_.at(id_.value);
+}
+
+template <typename T>
+NodeStorage& NodeView<T>::GetStorage() {
 	return dag_.nodes_.at(id_.value);
 }
 

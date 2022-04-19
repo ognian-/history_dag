@@ -20,10 +20,14 @@ template <typename T>
 EdgeId EdgeView<T>::GetId() const { return id_; }
 
 template <typename T>
-Node EdgeView<T>::GetParent() const { return {dag_, GetStorage().parent_}; }
+EdgeView<T>::NodeType EdgeView<T>::GetParent() const {
+    return {dag_, GetStorage().parent_};
+}
 
 template <typename T>
-Node EdgeView<T>::GetChild() const { return {dag_, GetStorage().child_}; }
+EdgeView<T>::NodeType EdgeView<T>::GetChild() const {
+    return {dag_, GetStorage().child_};
+}
 
 template <typename T>
 size_t EdgeView<T>::GetClade() const { return GetStorage().clade_; }
@@ -72,6 +76,11 @@ void EdgeView<T>::ClearMutations() {
 
 template <typename T>
 const auto& EdgeView<T>::GetStorage() const {
+	return dag_.edges_.at(id_.value);
+}
+
+template <typename T>
+auto& EdgeView<T>::GetStorage() {
 	return dag_.edges_.at(id_.value);
 }
 

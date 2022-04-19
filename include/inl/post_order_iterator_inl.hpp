@@ -7,14 +7,10 @@ PostOrderIterator<NodeType>::PostOrderIterator(NodeType node) {
 }
 
 template <typename NodeType>
-template <typename, typename>
-MutableNode PostOrderIterator<NodeType>::operator*() const {
-    return GetCurrent();
-}
-
-template <typename NodeType>
-Node PostOrderIterator<NodeType>::operator*() const {
-    return GetCurrent();
+NodeType PostOrderIterator<NodeType>::operator*() const {
+    assert(not stack_.empty());
+    if (visit_root_) return stack_.top().GetParent();
+    return stack_.top().GetChild();
 }
 
 template <typename NodeType>
@@ -69,11 +65,4 @@ void PostOrderIterator<NodeType>::PushToNextLeaf() {
     while (not stack_.top().GetChild().IsLeaf()) {
         stack_.push(*stack_.top().GetChild().GetChildren().begin());
     }
-}
-
-template <typename NodeType>
-auto PostOrderIterator<NodeType>::GetCurrent() const {
-    assert(not stack_.empty());
-    if (visit_root_) return stack_.top().GetParent();
-    return stack_.top().GetChild();
 }

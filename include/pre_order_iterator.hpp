@@ -17,14 +17,11 @@ public:
 	using pointer = value_type*;
 	using reference = value_type&;
 	using const_pointer = const pointer;
-	using const_reference = const reference;
+	using const_reference = const value_type&;
 
 	explicit PreOrderIterator(NodeType node);
 	PreOrderIterator() = default;
-	template <typename U = NodeType, typename =
-		std::enable_if_t<U::is_mutable>>
-	MutableNode operator*() const;
-	Node operator*() const;
+	NodeType operator*() const;
 	PreOrderIterator& operator++();
 	PreOrderIterator operator++(int);
 	bool operator==(const PreOrderIterator& other) const;
@@ -34,8 +31,6 @@ private:
 	using EdgeType = decltype(*std::declval<NodeType>().GetChildren().begin());
 
 	static std::optional<EdgeType> GetFirstChild(EdgeType edge);
-
-	auto GetCurrent() const;
 
 	std::stack<EdgeType> stack_;
 	bool root_visited_ = false;

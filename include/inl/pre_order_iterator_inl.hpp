@@ -6,14 +6,11 @@ PreOrderIterator<NodeType>::PreOrderIterator(NodeType node) {
 }
 
 template <typename NodeType>
-template <typename, typename>
-MutableNode PreOrderIterator<NodeType>::operator*() const {
-    return GetCurrent();
-}
-
-template <typename NodeType>
-Node PreOrderIterator<NodeType>::operator*() const {
-    return GetCurrent();
+NodeType PreOrderIterator<NodeType>::operator*() const {
+    assert(not stack_.empty());
+    auto result = stack_.top();
+    if (not root_visited_) return result.GetParent();
+    return result.GetChild();
 }
 
 template <typename NodeType>
@@ -67,12 +64,4 @@ std::optional<typename PreOrderIterator<NodeType>::EdgeType>
 PreOrderIterator<NodeType>::GetFirstChild(EdgeType edge) {
     if (edge.GetChild().IsLeaf()) return std::nullopt;
     return *edge.GetChild().GetChildren().begin();
-}
-
-template <typename NodeType>
-auto PreOrderIterator<NodeType>::GetCurrent() const {
-    assert(not stack_.empty());
-    auto result = stack_.top();
-    if (not root_visited_) return result.GetParent();
-    return result.GetChild();
 }

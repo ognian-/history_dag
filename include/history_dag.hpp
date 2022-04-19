@@ -82,7 +82,7 @@ public:
 	HistoryDAG SampleHistory() const;
 	HistoryDAG FindHistoryByIndex(ArbitraryPrecisionInteger) const;
 	bool IsCladeTree() const;
-    void Merge(CollectionOf<const HistoryDAG> auto);
+    inline HistoryDAG Merge(const HistoryDAG& source);
     void AddAllAllowedEdges();
 
 	void PostorderHistoryWeightAccumulation(

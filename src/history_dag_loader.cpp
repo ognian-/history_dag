@@ -10,24 +10,6 @@
 #include "proto/parsimony.pb.h"
 #include "newick.hpp"
 
-class NodeMutationsStorage {
-public:
-    NodeMutationsStorage() = default;
-    template <typename T>
-    NodeMutationsStorage(size_t position, char reference_nucleotide,
-        char parent_nucleotide, const T& mutated_nucleotide) :
-        position_{position},
-        reference_nucleotide_{reference_nucleotide},
-        parent_nucleotide_{parent_nucleotide},
-        mutated_nucleotide_{std::begin(mutated_nucleotide),
-            std::end(mutated_nucleotide)} {}
-
-    size_t position_ = NoId;
-    char reference_nucleotide_ = 0;
-    char parent_nucleotide_ = 0;
-    std::vector<char> mutated_nucleotide_ = {};
-};
-
 [[nodiscard]] HistoryDAG LoadHistoryDAG(const std::string& path) {
     std::ifstream in_compressed(path.c_str());
     assert(in_compressed);
@@ -49,24 +31,25 @@ public:
             dag.AddEdge({edge_id++}, dag.GetNode({parent}),
                 dag.GetNode({child}), 0);
         });
+    dag.BuildConnections();
 
-    std::vector<std::vector<NodeMutationsStorage>> node_mutations;
-    std::transform(data.node_mutations().begin(), data.node_mutations().end(),
-		std::back_inserter(node_mutations),
-        [](decltype(*data.node_mutations().begin()) i) {
-            std::vector<NodeMutationsStorage> result;
-            std::transform(i.mutation().begin(), i.mutation().end(),
-            std::back_inserter(result),
-            [](decltype(*i.mutation().begin()) j) {
-                return NodeMutationsStorage{
-                    static_cast<size_t>(j.position()),
-                    static_cast<char>(j.ref_nuc()),
-                    static_cast<char>(j.par_nuc()),
-                    j.mut_nuc()
-                };
+    size_t muts_idx = 0;
+    for (MutableNode node : dag.TraversePreOrder()) {
+        // TODO why there are less mutations than nodes?
+        if (muts_idx + 1 >= size_t(data.node_mutations().size())) break;
+        ++muts_idx;
+        if (node.IsRoot()) continue;
+        const auto& muts = data.node_mutations()[muts_idx];
+        MutableEdge parent_edge = *node.GetParents().begin();
+        for (auto& mut : muts.mutation()) {
+            parent_edge.AddMutation({
+                static_cast<size_t>(mut.position()),
+                static_cast<char>(mut.ref_nuc()),
+                static_cast<char>(mut.par_nuc()),
+                mut.mut_nuc()
             });
-            return result;
-        });
+        }
+    }
 
     std::unordered_map<std::string, std::vector<std::string>> condensed_nodes;
     for (auto& i : data.condensed_nodes()) {
@@ -80,6 +63,5 @@ public:
             i.clade_annotations().end()});
     }
 
-    dag.BuildConnections();
     return dag;
 }

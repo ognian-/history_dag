@@ -8,6 +8,12 @@ Requirements
 * protobuf libraries and compiler
 * zlib
 
+For Ubuntu 20.04 LTS the following commands installs the requirements and performs a full build:
+
+`sudo apt get install libasan6 libubsan1 make git g++-10 pkgconf protobuf-compiler libprotobuf-dev zlib1g-dev`
+
+`make CXX=g++-10 -j16`
+
 Building
 --------
 
