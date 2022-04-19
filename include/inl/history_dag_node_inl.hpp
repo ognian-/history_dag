@@ -50,7 +50,7 @@ CollectionOf<Edge> auto NodeView<T>::GetChildren() const {
 template <typename T>
 CollectionOf<Node> auto NodeView<T>::GetLeafsBelow() const {
 	return GetStorage().leafs_below_ | std::views::transform(
-		[this](NodeId idx) {
+		[*this](NodeId idx) {
 			return Node{dag_, idx};
 		});
 }

@@ -51,3 +51,9 @@ using MutableNode = NodeView<HistoryDAG&>;
 template <typename T> class EdgeView;
 using Edge = EdgeView<const HistoryDAG&>;
 using MutableEdge = EdgeView<HistoryDAG&>;
+
+namespace Transform {
+inline constexpr const auto GetParent = [](auto&& i) { return i.GetParent(); };
+inline constexpr const auto GetChild = [](auto&& i) { return i.GetChild(); };
+inline constexpr const auto GetId = [](auto&& i) { return i.GetId(); };
+}

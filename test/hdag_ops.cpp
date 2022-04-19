@@ -110,16 +110,19 @@ void ToDOT(HistoryDAG& dag, std::ostream& out) {
 	for (auto i : dag.GetEdges()) {
 		std::string parent = std::to_string(i.GetParent().GetId().value);
 		std::string child = std::to_string(i.GetChild().GetId().value);
-		if (!i.GetParent().GetSequence().empty()) {
-			parent += ": ";
-			parent += std::string(i.GetParent().GetSequence().begin(),
-				i.GetParent().GetSequence().end());
+		
+		parent += '[';
+		for (auto j : i.GetParent().GetLeafsBelow()) {
+			parent += std::to_string(j.GetId().value) + ' ';
 		}
-		if (!i.GetChild().GetSequence().empty()) {
-			child += ": ";
-			child += std::string(i.GetChild().GetSequence().begin(),
-				i.GetChild().GetSequence().end());
+		parent += ']';
+
+		child += '[';
+		for (auto j : i.GetChild().GetLeafsBelow()) {
+			child += std::to_string(j.GetId().value) + ' ';
 		}
+		child += ']';
+
 		out << "  \"" << parent << "\" -> \"" << child << "\"\n";
 	}
 	out << "}\n";
