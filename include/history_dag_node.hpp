@@ -26,6 +26,10 @@ public:
 	auto GetClades() const -> CollectionOfCollections<EdgeType> auto;
 	auto GetChildren() const -> CollectionOf<EdgeType> auto;
 	auto GetLeafsBelow() const -> CollectionOf<NodeType> auto;
+	EdgeType GetSingleParent() const;
+	std::string_view GetLabel() const;
+	void SetLabel(std::string_view label);
+	void CopyConnections(Node node);//XXX
 	bool IsRoot() const;
 	bool IsLeaf() const;
 	void AddParentEdge(Edge edge);
@@ -34,8 +38,8 @@ public:
 	auto BuildMutsRelReference() const;
 private:
 	template <typename U> friend bool operator==(NodeView<U>, NodeView<U>);
-	const NodeStorage& GetStorage() const;
-	NodeStorage& GetStorage();
+	template <typename> friend class NodeView;
+	auto& GetStorage() const;
 	T dag_;
 	const NodeId id_;
 };

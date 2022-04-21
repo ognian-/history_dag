@@ -50,9 +50,9 @@ public:
 	using Weight = double;
 	using ArbitraryPrecisionInteger = long;
 	
-	Node AddNode(NodeId id);
+	MutableNode AddNode(NodeId id);
 	
-	Edge AddEdge(EdgeId id, Node parent, Node child, size_t clade);
+	MutableEdge AddEdge(EdgeId id, Node parent, Node child, size_t clade);
 
 	void BuildConnections();
 	
@@ -108,9 +108,15 @@ public:
 private:
 	template <typename> friend class NodeView;
 	template <typename> friend class EdgeView;
+
+	static size_t HashOfNode(Node node);
+	static size_t HashOf(CollectionOf<Mutation> auto mutations);
 	
+	static bool Equal(Node lhs, Node rhs);
+
 	std::vector<NodeStorage> nodes_;
 	std::vector<std::set<NodeId>> nodes_leafs_below_;
+	std::vector<std::string> nodes_labels_;
 
 	std::vector<EdgeStorage<Weight>> edges_;
 	std::vector<std::vector<Mutation>> edges_mutations_;

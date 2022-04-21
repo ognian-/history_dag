@@ -56,6 +56,28 @@ auto NodeView<T>::GetLeafsBelow() const -> CollectionOf<NodeType> auto {
 }
 
 template <typename T>
+NodeView<T>::EdgeType NodeView<T>::GetSingleParent() const {
+	assert(GetParents().size() == 1);
+	return *GetParents().begin();
+}
+
+template <typename T>
+std::string_view NodeView<T>::GetLabel() const {
+	return dag_.nodes_labels_[id_.value];
+}
+
+template <typename T>
+void NodeView<T>::SetLabel(std::string_view label) {
+	dag_.nodes_labels_[id_.value] = label;
+}
+
+template <typename T>
+void NodeView<T>::CopyConnections(Node node) {
+	GetStorage().parents_ = node.GetStorage().parents_;
+	GetStorage().clades_ = node.GetStorage().clades_;
+}
+
+template <typename T>
 bool NodeView<T>::IsRoot() const {
 	return GetParents().empty();
 }
@@ -96,12 +118,7 @@ auto NodeView<T>::BuildMutsRelReference() const {
 }
 
 template <typename T>
-const NodeStorage& NodeView<T>::GetStorage() const {
-	return dag_.nodes_.at(id_.value);
-}
-
-template <typename T>
-NodeStorage& NodeView<T>::GetStorage() {
+auto& NodeView<T>::GetStorage() const {
 	return dag_.nodes_.at(id_.value);
 }
 

@@ -1,17 +1,21 @@
 #include "history_dag.hpp"
 
-Node HistoryDAG::AddNode(NodeId id) {
+MutableNode HistoryDAG::AddNode(NodeId id) {
 	assert(id.value != NoId);
 	[[maybe_unused]] auto& storage = GetOrInsert(nodes_, id);
+	[[maybe_unused]] auto& leafs_below = GetOrInsert(nodes_leafs_below_, id);
+	[[maybe_unused]] auto& label = GetOrInsert(nodes_labels_, id);
 	return {*this, id};
 }
 
-Edge HistoryDAG::AddEdge(EdgeId id, Node parent, Node child, size_t clade) {
+MutableEdge HistoryDAG::AddEdge(EdgeId id, Node parent, Node child,
+	size_t clade) {
 	assert(id.value != NoId);
 	auto& storage = GetOrInsert(edges_, id);
 	storage.parent_ = parent.GetId();
 	storage.child_ = child.GetId();
 	storage.clade_ = clade;
+	[[maybe_unused]] auto& mutations = GetOrInsert(edges_mutations_, id);
 	return {*this, id};
 }
 
@@ -68,4 +72,34 @@ Node HistoryDAG::GetRoot() const {
 
 MutableNode HistoryDAG::GetRoot() {
 	return {*this, root_};
+}
+
+size_t HistoryDAG::HashOfNode(Node node) {
+	auto leaf_mutations = node.GetChildren() | std::views::transform(
+			[](Edge child) {
+				return child.GetMutations();
+			});
+
+	return HashCombine(HashOf((*node.GetParents().begin()).GetMutations()),
+		HashOf(leaf_mutations | std::views::join));
+}
+
+bool HistoryDAG::Equal(Node lhs, Node rhs) {
+	if (not std::ranges::equal((*lhs.GetParents().begin()).GetMutations(),
+		(*rhs.GetParents().begin()).GetMutations())) return false;
+	
+	auto lhs_leaf_mutations = lhs.GetChildren() | std::views::transform(
+			[](Edge child) {
+				return child.GetMutations();
+			});
+
+	auto rhs_leaf_mutations = rhs.GetChildren() | std::views::transform(
+			[](Edge child) {
+				return child.GetMutations();
+			});
+
+	if (not std::ranges::equal(lhs_leaf_mutations |
+		std::views::join, rhs_leaf_mutations | std::views::join)) return false;
+
+	return true;
 }

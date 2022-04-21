@@ -35,17 +35,14 @@ template <typename T, typename Id>
 }
 
 template <typename T, typename Value>
-concept CollectionOf = std::ranges::view<T>;
-	// && std::same_as<std::ranges::range_value_t<T>, Value>;
-	// GCC bug 97402: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=97402
-	// Fixed in GCC 11.1, should be commented for now to keep working
-	// on GCC 10.
+concept CollectionOf = std::ranges::view<T>
+	&& std::same_as<std::ranges::range_value_t<T>, Value>;
 
 template <typename T, typename Value>
 concept CollectionOfCollections = std::ranges::view<T> &&
-	std::ranges::view<std::ranges::range_value_t<T>>;
-	// && std::same_as<std::ranges::range_value_t<std::ranges::range_value_t<T>>,
-	// Value>;
+	std::ranges::view<std::ranges::range_value_t<T>>
+	&& std::same_as<std::ranges::range_value_t<std::ranges::range_value_t<T>>,
+		Value>;
 
 class HistoryDAG;
 template <typename T> class NodeView;
@@ -60,3 +57,8 @@ inline constexpr const auto GetParent = [](auto&& i) { return i.GetParent(); };
 inline constexpr const auto GetChild = [](auto&& i) { return i.GetChild(); };
 inline constexpr const auto GetId = [](auto&& i) { return i.GetId(); };
 }
+
+inline constexpr const auto HashCombine = [](size_t lhs, size_t rhs) {
+	lhs ^= rhs + 0x9e3779b97f4a7c15 + (lhs << 6) + (lhs >> 2);
+	return lhs;
+};

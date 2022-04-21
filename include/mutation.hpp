@@ -16,6 +16,7 @@ public:
     inline CollectionOf<char> auto GetMutatedNucleotide() const;
 
     inline bool operator<(const Mutation& rhs) const;
+    inline bool operator==(const Mutation& rhs) const;
 
 private:
     size_t position_ = NoId;

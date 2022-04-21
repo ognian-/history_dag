@@ -3,6 +3,7 @@
 Requirements
 ------------
 
+* GCC 11.1
 * GNU make
 * pkgconfig
 * protobuf libraries and compiler

@@ -28,7 +28,7 @@ public:
 	const auto& GetWeight() const;
 	std::optional<EdgeView> FindNextSibling() const;
 
-	void AddMutation(const Mutation& mutation);
+	void SetMutations(CollectionOf<Mutation> auto&& mutations);
     void ClearMutations();
 private:
 	template <typename U> friend bool operator==(EdgeView<U>, EdgeView<U>);
