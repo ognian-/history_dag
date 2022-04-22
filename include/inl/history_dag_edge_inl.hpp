@@ -64,7 +64,7 @@ std::optional<EdgeView<T>> EdgeView<T>::FindNextSibling() const {
 }
 
 template <typename T>
-void EdgeView<T>::SetMutations(CollectionOf<Mutation> auto&& mutations) {
+void EdgeView<T>::SetMutations(CollectionOf<Mutation> auto mutations) {
     GetOrInsert(dag_.edges_mutations_, id_).assign(std::begin(mutations),
         std::end(mutations));
 }

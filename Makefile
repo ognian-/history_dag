@@ -6,7 +6,7 @@ CXX = g++
 CXXFLAGS += -std=c++20 \
 	-Werror -Wall -Wextra -pedantic -pedantic-errors \
 	-Wold-style-cast \
-	-O3 -g3 \
+	-O0 -g3 \
 	-fconcepts-diagnostics-depth=5 \
 	-Iinclude -Itest -I$(OUTDIR)/proto/.. -Ithird_party/nlohmann/json \
 	$$(pkg-config --cflags protobuf)

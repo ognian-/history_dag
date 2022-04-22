@@ -10,10 +10,15 @@ MutableNode HistoryDAG::AddNode(NodeId id) {
 
 MutableEdge HistoryDAG::AddEdge(EdgeId id, Node parent, Node child,
 	size_t clade) {
+	return AddEdge(id, parent.GetId(), child.GetId(), clade);
+}
+
+MutableEdge HistoryDAG::AddEdge(EdgeId id, NodeId parent, NodeId child,
+	size_t clade) {
 	assert(id.value != NoId);
 	auto& storage = GetOrInsert(edges_, id);
-	storage.parent_ = parent.GetId();
-	storage.child_ = child.GetId();
+	storage.parent_ = parent;
+	storage.child_ = child;
 	storage.clade_ = clade;
 	[[maybe_unused]] auto& mutations = GetOrInsert(edges_mutations_, id);
 	return {*this, id};

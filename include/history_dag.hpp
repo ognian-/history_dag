@@ -53,6 +53,7 @@ public:
 	MutableNode AddNode(NodeId id);
 	
 	MutableEdge AddEdge(EdgeId id, Node parent, Node child, size_t clade);
+	MutableEdge AddEdge(EdgeId id, NodeId parent, NodeId child, size_t clade);
 
 	void BuildConnections();
 	

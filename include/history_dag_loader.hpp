@@ -4,4 +4,6 @@
 
 #include "history_dag.hpp"
 
-HistoryDAG LoadHistoryDAG(const std::string& path);
+[[nodiscard]] HistoryDAG LoadHistoryDAGFromProtobufGZ(const std::string& path);
+
+[[nodiscard]] HistoryDAG LoadHistoryDAGFromJsonGZ(const std::string& path);
