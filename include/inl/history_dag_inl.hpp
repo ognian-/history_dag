@@ -136,7 +136,7 @@ HistoryDAG HistoryDAG::Merge(const HistoryDAG& source) {
 			}
 		}
 	}
-
+	result.BuildConnections();//XXX
 	return result;
 }
 

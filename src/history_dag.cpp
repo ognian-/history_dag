@@ -80,27 +80,27 @@ MutableNode HistoryDAG::GetRoot() {
 }
 
 size_t HistoryDAG::HashOfNode(Node node) {
-	auto leaf_mutations = node.GetChildren() | std::views::transform(
-			[](Edge child) {
-				return child.GetMutations();
+	auto leaf_mutations = node.GetLeafsBelow() | std::views::transform(
+			[](Node leaf) {
+				return leaf.GetFirstParent().GetMutations();
 			});
 
-	return HashCombine(HashOf((*node.GetParents().begin()).GetMutations()),
+	return HashCombine(HashOf(node.GetFirstParent().GetMutations()),
 		HashOf(leaf_mutations | std::views::join));
 }
 
 bool HistoryDAG::Equal(Node lhs, Node rhs) {
-	if (not std::ranges::equal((*lhs.GetParents().begin()).GetMutations(),
-		(*rhs.GetParents().begin()).GetMutations())) return false;
+	if (not std::ranges::equal(lhs.GetFirstParent().GetMutations(),
+		rhs.GetFirstParent().GetMutations())) return false;
 	
-	auto lhs_leaf_mutations = lhs.GetChildren() | std::views::transform(
-			[](Edge child) {
-				return child.GetMutations();
+	auto lhs_leaf_mutations = lhs.GetLeafsBelow() | std::views::transform(
+			[](Node leaf) {
+				return leaf.GetFirstParent().GetMutations();
 			});
 
-	auto rhs_leaf_mutations = rhs.GetChildren() | std::views::transform(
-			[](Edge child) {
-				return child.GetMutations();
+	auto rhs_leaf_mutations = rhs.GetLeafsBelow() | std::views::transform(
+			[](Node leaf) {
+				return leaf.GetFirstParent().GetMutations();
 			});
 
 	if (not std::ranges::equal(lhs_leaf_mutations |

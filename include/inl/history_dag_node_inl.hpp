@@ -62,6 +62,12 @@ NodeView<T>::EdgeType NodeView<T>::GetSingleParent() const {
 }
 
 template <typename T>
+NodeView<T>::EdgeType NodeView<T>::GetFirstParent() const {
+	assert(GetParents().size() > 0);
+	return *GetParents().begin();
+}
+
+template <typename T>
 std::string_view NodeView<T>::GetLabel() const {
 	return dag_.nodes_labels_[id_.value];
 }

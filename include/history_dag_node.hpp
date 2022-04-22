@@ -27,6 +27,7 @@ public:
 	auto GetChildren() const -> CollectionOf<EdgeType> auto;
 	auto GetLeafsBelow() const -> CollectionOf<NodeType> auto;
 	EdgeType GetSingleParent() const;
+	EdgeType GetFirstParent() const;
 	std::string_view GetLabel() const;
 	void SetLabel(std::string_view label);
 	void CopyConnections(Node node);//XXX
