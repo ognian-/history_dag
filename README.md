@@ -27,3 +27,8 @@ Address and UB sanitizers can be disabled by `make SANITIZE=no`. Disabling them 
 Valgrind's *memcheck* can be conveniently called by `make MEMCHECK=yes`. This option disables sanitizers, and `make clean` should be run first if there is an existing build with sanitizers enabled.
 
 Passing *nocatch* to the tests executable will allow exceptions to escape, which is useful for debugging. A gdb session can be started with `gdb --args ./out/history-dag-test nocatch`.
+
+Third-party 
+-----------
+
+* Lohmann, N. (2022). JSON for Modern C++ (Version 3.10.5) [Computer software]. https://github.com/nlohmann

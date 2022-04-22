@@ -8,7 +8,7 @@ CXXFLAGS += -std=c++20 \
 	-Wold-style-cast \
 	-O3 -g3 \
 	-fconcepts-diagnostics-depth=5 \
-	-Iinclude -Itest -I$(OUTDIR)/proto/.. \
+	-Iinclude -Itest -I$(OUTDIR)/proto/.. -Ithird_party/nlohmann/json \
 	$$(pkg-config --cflags protobuf)
 
 ifneq ($(SANITIZE),no)
