@@ -5,17 +5,18 @@
 #include <iterator>
 #include <stack>
 
-#include "history_dag_common.hpp"
+#include "traverse_value.hpp"
 
 template <typename NodeType>
 class PreOrderIterator {
 public:
 	using EdgeType = decltype(*std::declval<NodeType>().GetChildren().begin());
-	
+
 	using iterator_category = std::forward_iterator_tag;
 	using size_type = std::size_t;
 	using difference_type = std::ptrdiff_t;
-	using value_type = NodeType;
+	using value_type = TraverseValue<std::conditional_t<NodeType::is_mutable,
+		HistoryDAG&, const HistoryDAG&>>;
 	using pointer = value_type*;
 	using reference = value_type&;
 	using const_pointer = const pointer;
@@ -23,8 +24,7 @@ public:
 
 	explicit PreOrderIterator(NodeType node);
 	PreOrderIterator() = default;
-	NodeType operator*() const;
-	EdgeType GetEdge() const;
+	value_type operator*() const;
 	PreOrderIterator& operator++();
 	PreOrderIterator operator++(int);
 	bool operator==(const PreOrderIterator& other) const;

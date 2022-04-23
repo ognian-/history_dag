@@ -14,7 +14,7 @@ EdgeView<T>::operator Edge() const {
 }
 
 template <typename T>
-const HistoryDAG& EdgeView<T>::GetDAG() const { return dag_; }
+T EdgeView<T>::GetDAG() const { return dag_; }
 
 template <typename T>
 EdgeId EdgeView<T>::GetId() const { return id_; }

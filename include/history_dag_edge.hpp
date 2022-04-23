@@ -18,7 +18,7 @@ public:
 	using NodeType = std::conditional_t<is_mutable, MutableNode, Node>;
 	EdgeView(T dag, EdgeId id);
 	operator Edge() const;
-	const HistoryDAG& GetDAG() const;
+	T GetDAG() const;
 	EdgeId GetId() const;
 	NodeType GetParent() const;
 	NodeType GetChild() const;

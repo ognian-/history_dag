@@ -28,6 +28,7 @@
 
 #include "history_dag_node_storage.hpp"
 #include "history_dag_edge_storage.hpp"
+#include "traverse_value.hpp"
 #include "counter_map.hpp"
 
 template <typename T, typename Weight>
@@ -73,10 +74,12 @@ public:
 	inline CollectionOf<Node> auto GetLeafs() const;
 	inline CollectionOf<MutableNode> auto GetLeafs();
 
-	inline CollectionOf<Node> auto TraversePreOrder() const;
-	inline CollectionOf<MutableNode> auto TraversePreOrder();
-	inline CollectionOf<Node> auto TraversePostOrder() const;
-	inline CollectionOf<MutableNode> auto TraversePostOrder();
+	inline CollectionOf<TraverseValue<const HistoryDAG&>> auto
+		TraversePreOrder() const;
+	inline CollectionOf<TraverseValue<HistoryDAG&>> auto TraversePreOrder();
+	inline CollectionOf<TraverseValue<const HistoryDAG&>> auto
+		TraversePostOrder() const;
+	inline CollectionOf<TraverseValue<HistoryDAG&>> auto TraversePostOrder();
 
 	ArbitraryPrecisionInteger CountHistories() const;
 	void WriteProtobuf(std::string_view filename) const;
@@ -127,3 +130,4 @@ private:
 #include "inl/history_dag_inl.hpp"
 #include "inl/pre_order_iterator_inl.hpp"
 #include "inl/post_order_iterator_inl.hpp"
+#include "inl/traverse_value_inl.hpp"

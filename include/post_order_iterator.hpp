@@ -6,7 +6,7 @@
 #include <stack>
 #include <optional>
 
-#include "history_dag_common.hpp"
+#include "traverse_value.hpp"
 
 template <typename NodeType>
 class PostOrderIterator {
@@ -16,7 +16,8 @@ public:
 	using iterator_category = std::forward_iterator_tag;
 	using size_type = std::size_t;
 	using difference_type = std::ptrdiff_t;
-	using value_type = NodeType;
+	using value_type = TraverseValue<std::conditional_t<NodeType::is_mutable,
+		HistoryDAG&, const HistoryDAG&>>;
 	using pointer = value_type*;
 	using reference = value_type&;
 	using const_pointer = const pointer;
@@ -24,8 +25,7 @@ public:
 
 	explicit PostOrderIterator(NodeType node);
 	PostOrderIterator() = default;
-	NodeType operator*() const;
-	EdgeType GetEdge() const;
+	value_type operator*() const;
 	PostOrderIterator& operator++();
 	PostOrderIterator operator++(int);
 	bool operator==(const PostOrderIterator& other) const;

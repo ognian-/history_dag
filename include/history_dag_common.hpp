@@ -47,6 +47,10 @@ inline bool operator<(MutationPosition lhs, MutationPosition rhs) {
 	return lhs.value < rhs.value;
 }
 
+template<> struct std::hash<NodeId> {
+    size_t operator()(NodeId id) const noexcept { return id.value; }
+};
+
 template <typename T, typename Id>
 [[nodiscard]] static T& GetOrInsert(std::vector<T>& data, Id id) {
 	if constexpr (std::is_same_v<Id, size_t>) {
@@ -69,6 +73,11 @@ concept CollectionOfCollections = std::ranges::view<T> &&
 		Value>;
 
 class HistoryDAG;
+
+template <typename T>
+concept HistoryDAGReference = std::same_as<T, HistoryDAG&> or
+	std::same_as<T, const HistoryDAG&>;
+
 template <typename T> class NodeView;
 using Node = NodeView<const HistoryDAG&>;
 using MutableNode = NodeView<HistoryDAG&>;

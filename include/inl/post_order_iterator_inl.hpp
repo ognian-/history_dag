@@ -7,15 +7,12 @@ PostOrderIterator<NodeType>::PostOrderIterator(NodeType node) {
 }
 
 template <typename NodeType>
-NodeType PostOrderIterator<NodeType>::operator*() const {
-    return visit_root_ ? GetEdge().GetParent() : GetEdge().GetChild();
-}
-
-template <typename NodeType>
-PostOrderIterator<NodeType>::EdgeType
-PostOrderIterator<NodeType>::GetEdge() const {
+PostOrderIterator<NodeType>::value_type
+PostOrderIterator<NodeType>::operator*() const {
     assert(not stack_.empty());
-    return stack_.top();
+    EdgeType top = stack_.top();
+    return {top.GetDAG(), visit_root_ ? top.GetParent().GetId() :
+        top.GetChild().GetId(), top.GetId()};
 }
 
 template <typename NodeType>

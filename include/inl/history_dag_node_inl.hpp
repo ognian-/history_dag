@@ -14,7 +14,7 @@ NodeView<T>::operator Node() const {
 }
 
 template <typename T>
-const HistoryDAG& NodeView<T>::GetDAG() const { return dag_; }
+T NodeView<T>::GetDAG() const { return dag_; }
 
 template <typename T>
 NodeId NodeView<T>::GetId() const { return id_; }

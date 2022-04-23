@@ -41,22 +41,24 @@ CollectionOf<MutableNode> auto HistoryDAG::GetLeafs() {
 		});
 }
 
-CollectionOf<Node> auto HistoryDAG::TraversePreOrder() const {
+CollectionOf<TraverseValue<const HistoryDAG&>> auto
+	HistoryDAG::TraversePreOrder() const {
 	return std::ranges::subrange(PreOrderIterator{GetRoot()},
 		PreOrderIterator<Node>{});
 }
 
-CollectionOf<MutableNode> auto HistoryDAG::TraversePreOrder() {
+CollectionOf<TraverseValue<HistoryDAG&>> auto HistoryDAG::TraversePreOrder() {
 	return std::ranges::subrange(PreOrderIterator{GetRoot()},
 		PreOrderIterator<MutableNode>{});
 }
 
-CollectionOf<Node> auto HistoryDAG::TraversePostOrder() const {
+CollectionOf<TraverseValue<const HistoryDAG&>> auto
+	HistoryDAG::TraversePostOrder() const {
 	return std::ranges::subrange(PostOrderIterator{GetRoot()},
 		PostOrderIterator<Node>{});
 }
 
-CollectionOf<MutableNode> auto HistoryDAG::TraversePostOrder() {
+CollectionOf<TraverseValue<HistoryDAG&>> auto HistoryDAG::TraversePostOrder() {
 	return std::ranges::subrange(PostOrderIterator{GetRoot()},
 		PostOrderIterator<MutableNode>{});
 }

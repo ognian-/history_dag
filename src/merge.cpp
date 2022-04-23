@@ -3,16 +3,21 @@
 #include "merge.hpp"
 #include "compact_genome.hpp"
 
+std::unordered_map<NodeId, CompactGenome> ComputeCompactGenomes(
+    const HistoryDAG& dag) {
+    std::unordered_map<NodeId, CompactGenome> result;
+    result.reserve(dag.GetNodes().size());
+    for (Node i : dag.TraversePreOrder()) {
+        if (i.IsRoot()) continue;
+        result[i.GetId()].AddMutations(i.GetFirstParent().GetMutations());
+    }
+    return result;
+}
+
 HistoryDAG Merge(const HistoryDAG& reference, const HistoryDAG& source) {
     HistoryDAG result = reference;
     
-    std::vector<CompactGenome> source_cgs;
-    source_cgs.reserve(source.GetNodes().size());
-    for (auto i : source.TraversePreOrder()) {
-        if (i.IsRoot()) continue;
-        GetOrInsert(source_cgs, i.GetId())
-            .AddMutations(i.GetFirstParent().GetMutations());
-    }
+    ComputeCompactGenomes(source);
 
     return result;
 }

@@ -6,15 +6,12 @@ PreOrderIterator<NodeType>::PreOrderIterator(NodeType node) {
 }
 
 template <typename NodeType>
-NodeType PreOrderIterator<NodeType>::operator*() const {
-    return root_visited_ ? GetEdge().GetChild() : GetEdge().GetParent();
-}
-
-template <typename NodeType>
-PreOrderIterator<NodeType>::EdgeType
-PreOrderIterator<NodeType>::GetEdge() const {
+PreOrderIterator<NodeType>::value_type
+PreOrderIterator<NodeType>::operator*() const {
     assert(not stack_.empty());
-    return stack_.top();
+    EdgeType top = stack_.top();
+    return {top.GetDAG(), root_visited_ ? top.GetChild().GetId() :
+        top.GetParent().GetId(), top.GetId()};
 }
 
 template <typename NodeType>
