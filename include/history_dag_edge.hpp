@@ -22,7 +22,7 @@ public:
 	EdgeId GetId() const;
 	NodeType GetParent() const;
 	NodeType GetChild() const;
-	size_t GetClade() const;
+	CladeIdx GetClade() const;
 	CollectionOf<Mutation> auto GetMutations() const;
     double GetProbability() const;
 	const auto& GetWeight() const;

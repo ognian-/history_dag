@@ -52,8 +52,8 @@ public:
 	
 	MutableNode AddNode(NodeId id);
 	
-	MutableEdge AddEdge(EdgeId id, Node parent, Node child, size_t clade);
-	MutableEdge AddEdge(EdgeId id, NodeId parent, NodeId child, size_t clade);
+	MutableEdge AddEdge(EdgeId id, Node parent, Node child, CladeIdx clade);
+	MutableEdge AddEdge(EdgeId id, NodeId parent, NodeId child, CladeIdx clade);
 
 	void BuildConnections();
 	
@@ -127,4 +127,3 @@ private:
 #include "inl/history_dag_inl.hpp"
 #include "inl/pre_order_iterator_inl.hpp"
 #include "inl/post_order_iterator_inl.hpp"
-#include "inl/mutation_inl.hpp"

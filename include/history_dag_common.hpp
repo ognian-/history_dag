@@ -11,6 +11,10 @@ struct NodeId { size_t value = NoId; };
 
 struct EdgeId { size_t value = NoId; };
 
+struct CladeIdx { size_t value = NoId; };
+
+struct MutationPosition { size_t value = NoId; };
+
 inline bool operator==(NodeId lhs, NodeId rhs) {
 	return lhs.value == rhs.value;
 }
@@ -21,6 +25,26 @@ inline bool operator<(NodeId lhs, NodeId rhs) {
 
 inline bool operator==(EdgeId lhs, EdgeId rhs) {
 	return lhs.value == rhs.value;
+}
+
+inline bool operator<(EdgeId lhs, EdgeId rhs) {
+	return lhs.value < rhs.value;
+}
+
+inline bool operator==(CladeIdx lhs, CladeIdx rhs) {
+	return lhs.value == rhs.value;
+}
+
+inline bool operator<(CladeIdx lhs, CladeIdx rhs) {
+	return lhs.value < rhs.value;
+}
+
+inline bool operator==(MutationPosition lhs, MutationPosition rhs) {
+	return lhs.value == rhs.value;
+}
+
+inline bool operator<(MutationPosition lhs, MutationPosition rhs) {
+	return lhs.value < rhs.value;
 }
 
 template <typename T, typename Id>

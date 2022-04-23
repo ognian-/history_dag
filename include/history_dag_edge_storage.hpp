@@ -9,7 +9,7 @@ class EdgeStorage {
 
 	NodeId parent_;
 	NodeId child_;
-	size_t clade_ = NoId;
+	CladeIdx clade_;
 	double probability_ = 0.0;
 	Weight weight_ = {};
 };

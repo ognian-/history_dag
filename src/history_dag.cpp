@@ -7,12 +7,12 @@ MutableNode HistoryDAG::AddNode(NodeId id) {
 }
 
 MutableEdge HistoryDAG::AddEdge(EdgeId id, Node parent, Node child,
-	size_t clade) {
+	CladeIdx clade) {
 	return AddEdge(id, parent.GetId(), child.GetId(), clade);
 }
 
 MutableEdge HistoryDAG::AddEdge(EdgeId id, NodeId parent, NodeId child,
-	size_t clade) {
+	CladeIdx clade) {
 	assert(id.value != NoId);
 	auto& storage = GetOrInsert(edges_, id);
 	storage.parent_ = parent;

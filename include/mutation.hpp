@@ -7,20 +7,20 @@
 class Mutation {
 public:
     Mutation() = default;
-    inline Mutation(size_t position, char reference_nucleotide,
-		char parent_nucleotide, const auto& mutated_nucleotide);
+    inline Mutation(MutationPosition position, char parent_nucleotide,
+        char reference_nucleotide);
 	
-	inline size_t GetPosition() const;
-    inline char GetReferenceNucleotide() const;
+	inline MutationPosition GetPosition() const;
     inline char GetParentNucleotide() const;
-    inline CollectionOf<char> auto GetMutatedNucleotide() const;
+    inline char GetReferenceNucleotide() const;
 
     inline bool operator<(const Mutation& rhs) const;
     inline bool operator==(const Mutation& rhs) const;
 
 private:
-    size_t position_ = NoId;
-    char reference_nucleotide_ = 0;
+    MutationPosition position_ = {NoId};
     char parent_nucleotide_ = 0;
-    std::vector<char> mutated_nucleotide_ = {};
+    char reference_nucleotide_ = 0;
 };
+
+#include "inl/mutation_inl.hpp"

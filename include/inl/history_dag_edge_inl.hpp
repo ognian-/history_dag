@@ -30,7 +30,7 @@ EdgeView<T>::NodeType EdgeView<T>::GetChild() const {
 }
 
 template <typename T>
-size_t EdgeView<T>::GetClade() const { return GetStorage().clade_; }
+CladeIdx EdgeView<T>::GetClade() const { return GetStorage().clade_; }
 
 template <typename T>
 CollectionOf<Mutation> auto EdgeView<T>::GetMutations() const {
