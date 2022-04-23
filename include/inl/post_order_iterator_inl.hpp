@@ -8,9 +8,14 @@ PostOrderIterator<NodeType>::PostOrderIterator(NodeType node) {
 
 template <typename NodeType>
 NodeType PostOrderIterator<NodeType>::operator*() const {
+    return visit_root_ ? GetEdge().GetParent() : GetEdge().GetChild();
+}
+
+template <typename NodeType>
+PostOrderIterator<NodeType>::EdgeType
+PostOrderIterator<NodeType>::GetEdge() const {
     assert(not stack_.empty());
-    if (visit_root_) return stack_.top().GetParent();
-    return stack_.top().GetChild();
+    return stack_.top();
 }
 
 template <typename NodeType>

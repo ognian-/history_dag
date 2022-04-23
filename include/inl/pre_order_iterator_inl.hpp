@@ -7,10 +7,14 @@ PreOrderIterator<NodeType>::PreOrderIterator(NodeType node) {
 
 template <typename NodeType>
 NodeType PreOrderIterator<NodeType>::operator*() const {
+    return root_visited_ ? GetEdge().GetChild() : GetEdge().GetParent();
+}
+
+template <typename NodeType>
+PreOrderIterator<NodeType>::EdgeType
+PreOrderIterator<NodeType>::GetEdge() const {
     assert(not stack_.empty());
-    auto result = stack_.top();
-    if (not root_visited_) return result.GetParent();
-    return result.GetChild();
+    return stack_.top();
 }
 
 template <typename NodeType>
@@ -21,19 +25,28 @@ PreOrderIterator<NodeType>& PreOrderIterator<NodeType>::operator++() {
         root_visited_ = true;
         return *this;
     }
-    if (GetFirstChild(top).has_value()) {
-        stack_.push(GetFirstChild(top).value());
+    auto top_first_child = GetFirstChild(top);
+    if (top_first_child.has_value()) {
+        stack_.push(*top_first_child);
     } else {
         stack_.pop();
-        if (top.FindNextSibling().has_value()) {
-            stack_.push(*top.FindNextSibling());
+        auto next = top.FindNextSibling();
+        if (next.has_value()) {
+            stack_.push(*next);
         } else {
-            while (not stack_.empty() and not
-                stack_.top().FindNextSibling().has_value()) stack_.pop();
+            std::optional<EdgeType> next;
+            auto NextFound = [&]() {
+                auto top_next = stack_.top().FindNextSibling();
+                if (top_next.has_value()) {
+                    next.emplace(*top_next);
+                    return true;
+                }
+                return false;
+            };
+            while (not stack_.empty() and not NextFound()) stack_.pop();
             if (not stack_.empty()) {
-                auto next = *stack_.top().FindNextSibling();
                 stack_.pop();
-                stack_.push(next);
+                stack_.push(*next);
             }
         }
     }

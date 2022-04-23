@@ -11,6 +11,8 @@
 template <typename NodeType>
 class PostOrderIterator {
 public:
+	using EdgeType = decltype(*std::declval<NodeType>().GetChildren().begin());
+	
 	using iterator_category = std::forward_iterator_tag;
 	using size_type = std::size_t;
 	using difference_type = std::ptrdiff_t;
@@ -23,13 +25,13 @@ public:
 	explicit PostOrderIterator(NodeType node);
 	PostOrderIterator() = default;
 	NodeType operator*() const;
+	EdgeType GetEdge() const;
 	PostOrderIterator& operator++();
 	PostOrderIterator operator++(int);
 	bool operator==(const PostOrderIterator& other) const;
 	bool operator!=(const PostOrderIterator& other) const;
 
 private:
-	using EdgeType = decltype(*std::declval<NodeType>().GetChildren().begin());
     
 	void PushToNextLeaf();
 	auto GetCurrent() const;

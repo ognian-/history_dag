@@ -10,6 +10,8 @@
 template <typename NodeType>
 class PreOrderIterator {
 public:
+	using EdgeType = decltype(*std::declval<NodeType>().GetChildren().begin());
+	
 	using iterator_category = std::forward_iterator_tag;
 	using size_type = std::size_t;
 	using difference_type = std::ptrdiff_t;
@@ -22,13 +24,13 @@ public:
 	explicit PreOrderIterator(NodeType node);
 	PreOrderIterator() = default;
 	NodeType operator*() const;
+	EdgeType GetEdge() const;
 	PreOrderIterator& operator++();
 	PreOrderIterator operator++(int);
 	bool operator==(const PreOrderIterator& other) const;
 	bool operator!=(const PreOrderIterator& other) const;
 
 private:
-	using EdgeType = decltype(*std::declval<NodeType>().GetChildren().begin());
 
 	static std::optional<EdgeType> GetFirstChild(EdgeType edge);
 
