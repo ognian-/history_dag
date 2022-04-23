@@ -20,7 +20,8 @@ HistoryDAG LoadHistoryDAGFromProtobufGZ(const std::string& path) {
     size_t edge_id = 0;
     ParseNewick(data.newick(), [&](size_t id, std::string label,
         std::optional<double> branch_length) {
-            dag.AddNode({id}).SetLabel(label);
+            dag.AddNode({id});
+            std::ignore = label;
             std::ignore = branch_length;
         }, [&](size_t parent, size_t child) {
             dag.AddEdge({edge_id++}, dag.GetNode({parent}),

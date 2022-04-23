@@ -29,18 +29,3 @@ bool Mutation::operator==(const Mutation& rhs) const {
         parent_nucleotide_ == rhs.parent_nucleotide_ &&
         mutated_nucleotide_ == rhs.mutated_nucleotide_;
 }
-
-inline std::string MutStr(Node node) {//XXX
-	std::string result;
-	for (auto i : (*node.GetParents().begin()).GetMutations()) {
-		result += std::to_string(i.GetPosition());
-        result += '-';
-		result += i.GetReferenceNucleotide() + 'A';
-		result += i.GetParentNucleotide() + 'A';
-		for (char j : i.GetMutatedNucleotide()) {
-			result += j + 'A';
-		}
-		result += ',';
-	}
-	return result;
-}

@@ -20,12 +20,6 @@ template <typename T>
 NodeId NodeView<T>::GetId() const { return id_; }
 
 template <typename T>
-CollectionOf<char> auto NodeView<T>::GetSequence() const {
-	// TODO implement
-	return std::ranges::empty_view<char>{};
-}
-
-template <typename T>
 auto NodeView<T>::GetParents() const -> CollectionOf<EdgeType> auto {
 	return GetStorage().parents_ | std::views::transform([this](EdgeId idx) {
 		return EdgeType{dag_, idx};
@@ -48,14 +42,6 @@ auto NodeView<T>::GetChildren() const -> CollectionOf<EdgeType> auto {
 }
 
 template <typename T>
-auto NodeView<T>::GetLeafsBelow() const -> CollectionOf<NodeType> auto {
-	return dag_.nodes_leafs_below_[id_.value] | std::views::transform(
-		[*this](NodeId idx) {
-			return NodeType{dag_, idx};
-		});
-}
-
-template <typename T>
 NodeView<T>::EdgeType NodeView<T>::GetSingleParent() const {
 	assert(GetParents().size() == 1);
 	return *GetParents().begin();
@@ -65,22 +51,6 @@ template <typename T>
 NodeView<T>::EdgeType NodeView<T>::GetFirstParent() const {
 	assert(GetParents().size() > 0);
 	return *GetParents().begin();
-}
-
-template <typename T>
-std::string_view NodeView<T>::GetLabel() const {
-	return dag_.nodes_labels_[id_.value];
-}
-
-template <typename T>
-void NodeView<T>::SetLabel(std::string_view label) {
-	dag_.nodes_labels_[id_.value] = label;
-}
-
-template <typename T>
-void NodeView<T>::CopyConnections(Node node) {
-	GetStorage().parents_ = node.GetStorage().parents_;
-	GetStorage().clades_ = node.GetStorage().clades_;
 }
 
 template <typename T>
@@ -114,7 +84,7 @@ auto NodeView<T>::BuildMutsRelReference() const {
     NodeId current_node = id_;
     while (not dag_.GetNode(current_node).IsRoot()) {
         /*current_node must then have a parent edge*/
-        Edge parent_edge = *dag_.GetNode(current_node).GetParents().begin();
+        Edge parent_edge = dag_.GetNode(current_node).GetFirstParent();
         for (auto mut : parent_edge.GetMutations()){
             muts.insert(mut);
         }

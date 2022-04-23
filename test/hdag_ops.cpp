@@ -80,9 +80,6 @@ HistoryDAG GenerateBinaryTree() {
 void PrintDag(HistoryDAG& dag) {
 	for (auto node : dag.GetNodes()) {
 		std::cout << "Node: " << node.GetId().value << "\n";
-		std::cout << "  Sequence: ";
-		for (char i : node.GetSequence()) std::cout << i;
-		std::cout << "\n";
 		std::cout << "  Parents: ";
 		for (auto i : node.GetParents()) std::cout << i.GetId().value << " ";
 		std::cout << "\n";
@@ -110,19 +107,6 @@ void ToDOT(HistoryDAG& dag, std::ostream& out) {
 	for (auto i : dag.GetEdges()) {
 		std::string parent = std::to_string(i.GetParent().GetId().value);
 		std::string child = std::to_string(i.GetChild().GetId().value);
-		
-		parent += '[';
-		for (auto j : i.GetParent().GetLeafsBelow()) {
-			parent += std::to_string(j.GetId().value) + ' ';
-		}
-		parent += ']';
-
-		child += '[';
-		for (auto j : i.GetChild().GetLeafsBelow()) {
-			child += std::to_string(j.GetId().value) + ' ';
-		}
-		child += ']';
-
 		out << "  \"" << parent << "\" -> \"" << child << "\"\n";
 	}
 	out << "}\n";

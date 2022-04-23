@@ -21,16 +21,11 @@ public:
 	operator Node() const;
 	const HistoryDAG& GetDAG() const;
 	NodeId GetId() const;
-	CollectionOf<char> auto GetSequence() const;
 	auto GetParents() const -> CollectionOf<EdgeType> auto;
 	auto GetClades() const -> CollectionOfCollections<EdgeType> auto;
 	auto GetChildren() const -> CollectionOf<EdgeType> auto;
-	auto GetLeafsBelow() const -> CollectionOf<NodeType> auto;
 	EdgeType GetSingleParent() const;
 	EdgeType GetFirstParent() const;
-	std::string_view GetLabel() const;
-	void SetLabel(std::string_view label);
-	void CopyConnections(Node node);//XXX
 	bool IsRoot() const;
 	bool IsLeaf() const;
 	void AddParentEdge(Edge edge);

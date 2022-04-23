@@ -3,8 +3,6 @@
 MutableNode HistoryDAG::AddNode(NodeId id) {
 	assert(id.value != NoId);
 	[[maybe_unused]] auto& storage = GetOrInsert(nodes_, id);
-	[[maybe_unused]] auto& leafs_below = GetOrInsert(nodes_leafs_below_, id);
-	[[maybe_unused]] auto& label = GetOrInsert(nodes_labels_, id);
 	return {*this, id};
 }
 
@@ -27,9 +25,6 @@ MutableEdge HistoryDAG::AddEdge(EdgeId id, NodeId parent, NodeId child,
 void HistoryDAG::BuildConnections() {
 	root_ = {NoId};
 	leafs_ = {};
-	nodes_leafs_below_.clear();
-	nodes_leafs_below_.resize(nodes_.size());
-
 	for (auto& node : nodes_) {
 		node.ClearConnections();
 	}
@@ -49,20 +44,6 @@ void HistoryDAG::BuildConnections() {
 			leafs_.push_back(node.GetId());
 		}
 	}
-	for (auto node : TraversePostOrder()) {
-		for (auto child : node.GetChildren() |
-			std::views::transform(Transform::GetChild)) {
-			
-			if (child.IsLeaf()) {
-				nodes_leafs_below_[node.GetId().value].insert(child.GetId());
-			} else {
-				auto leafs = child.GetLeafsBelow() |
-					std::views::transform(Transform::GetId);
-				nodes_leafs_below_[node.GetId().value].insert(
-					std::begin(leafs), std::end(leafs));
-			}
-		}
-	}
 }
 
 Node HistoryDAG::GetNode(NodeId id) const { return {*this, id}; }
@@ -77,34 +58,4 @@ Node HistoryDAG::GetRoot() const {
 
 MutableNode HistoryDAG::GetRoot() {
 	return {*this, root_};
-}
-
-size_t HistoryDAG::HashOfNode(Node node) {
-	auto leaf_mutations = node.GetLeafsBelow() | std::views::transform(
-			[](Node leaf) {
-				return leaf.GetFirstParent().GetMutations();
-			});
-
-	return HashCombine(HashOf(node.GetFirstParent().GetMutations()),
-		HashOf(leaf_mutations | std::views::join));
-}
-
-bool HistoryDAG::Equal(Node lhs, Node rhs) {
-	if (not std::ranges::equal(lhs.GetFirstParent().GetMutations(),
-		rhs.GetFirstParent().GetMutations())) return false;
-	
-	auto lhs_leaf_mutations = lhs.GetLeafsBelow() | std::views::transform(
-			[](Node leaf) {
-				return leaf.GetFirstParent().GetMutations();
-			});
-
-	auto rhs_leaf_mutations = rhs.GetLeafsBelow() | std::views::transform(
-			[](Node leaf) {
-				return leaf.GetFirstParent().GetMutations();
-			});
-
-	if (not std::ranges::equal(lhs_leaf_mutations |
-		std::views::join, rhs_leaf_mutations | std::views::join)) return false;
-
-	return true;
 }
