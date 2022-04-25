@@ -35,14 +35,15 @@ HistoryDAG LoadHistoryDAGFromProtobufGZ(const std::string& path) {
         if (node.IsRoot()) continue;
         node.GetSingleParent().SetMutations(muts.mutation() |
             std::views::transform([](auto& mut) -> Mutation {
+                static const char decode[] = {'A', 'C', 'G', 'T'};
+                assert(mut.mut_nuc().size() == 1);
                 return {
                     {static_cast<size_t>(mut.position())},
-                    static_cast<char>(mut.par_nuc()),
-                    static_cast<char>(mut.ref_nuc())
+                    decode[mut.par_nuc()],
+                    decode[mut.mut_nuc()[0]]
                 };
             }));
     }
-
     std::unordered_map<std::string, std::vector<std::string>> condensed_nodes;
     for (auto& i : data.condensed_nodes()) {
         condensed_nodes[i.node_name()] = {i.condensed_leaves().begin(),

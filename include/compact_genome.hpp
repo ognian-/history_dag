@@ -7,8 +7,11 @@
 class CompactGenome {
 public:
 
-    void AddMutations(CollectionOf<Mutation> auto mutations);
-    CollectionOf<Mutation> auto GetMutations() const;
+    inline void AddMutations(CollectionOf<Mutation> auto mutations);
+    inline CollectionOf<Mutation> auto GetMutations() const;
+
+    inline bool operator==(const CompactGenome& rhs) const;
+    inline bool operator<(const CompactGenome& rhs) const;
 
 private:
     std::map<MutationPosition, std::pair<char, char>> mutations_;

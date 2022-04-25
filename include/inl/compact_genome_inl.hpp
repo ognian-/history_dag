@@ -6,7 +6,10 @@ void CompactGenome::AddMutations(CollectionOf<Mutation> auto mutations) {
                 mutation.GetReferenceNucleotide()};
         } else {
             auto& [parent, reference] = i->second;
-            assert(mutation.GetParentNucleotide() == reference);
+            if (mutation.GetParentNucleotide() != reference) {
+                // Warning: old base does not match existing base in CG.
+                continue;
+            }
             reference = mutation.GetReferenceNucleotide();
             if (reference == parent) {
                 mutations_.erase(i);
@@ -19,4 +22,12 @@ CollectionOf<Mutation> auto CompactGenome::GetMutations() const {
     return mutations_ | std::views::transform([](const auto& i) {
         return Mutation{i.first, i.second.first, i.second.second};
     });
+}
+
+bool CompactGenome::operator==(const CompactGenome& rhs) const {
+    return mutations_ == rhs.mutations_;
+}
+
+bool CompactGenome::operator<(const CompactGenome& rhs) const {
+    return mutations_ < rhs.mutations_;
 }
