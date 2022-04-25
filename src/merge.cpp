@@ -85,9 +85,11 @@ public:
         return map;
     }
 
-    std::pair<CompactGenome, std::set<CompactGenome>> BuildKey(NodeId id) const {
+    std::pair<CompactGenome, std::set<CompactGenome>>
+    BuildKey(NodeId id) const {
         std::set<CompactGenome> leafs;
-        auto view = clade_sets_.at(id.value) | std::views::transform([this](NodeId id) {
+        auto view = clade_sets_.at(id.value) |
+            std::views::transform([this](NodeId id) {
             return cgs_.at(id.value);
         });
         leafs.insert(view.begin(), view.end());
@@ -108,9 +110,30 @@ HistoryDAG Merge(const HistoryDAG& reference, const HistoryDAG& source) {
     auto map = ref_data.BuildMap();
     for (Node i : source.TraversePostOrder()) {
         if (i.IsRoot()) continue;
-        auto i_ref = map.find(src_data.BuildKey(i.GetId()));
-        if (i_ref != map.end()) {
-
+        auto key = src_data.BuildKey(i.GetId());
+        auto i_ref = map.find(key);
+        NodeId corresponding_node;
+        if (i_ref == map.end()) {
+            MutableNode new_node = result.AddNode({result.GetNodes().size()});
+            map[key] = new_node.GetId();
+            corresponding_node = new_node.GetId();
+        } else {
+            corresponding_node = i_ref->second;
+        }
+        for (Node child : i.GetChildren() |
+            std::views::transform(Transform::GetChild)) {
+            auto corresponding_child =
+                map.find(src_data.BuildKey(child.GetId()));
+            bool have_edge = false;
+            for (Edge edge : result.GetEdges()) {
+                if (edge.GetParent().GetId() == corresponding_node and
+                    edge.GetChild().GetId() == corresponding_child->second) {
+                    have_edge = true;
+                    break;
+                }
+            }
+            if (not have_edge) result.AddEdge({result.GetEdges().size()},
+                corresponding_node, corresponding_child->second, {0});
         }
     }
 
