@@ -70,6 +70,7 @@ void EdgeView<T>::SetMutations(CollectionOf<Mutation> auto mutations) {
     std::ranges::sort(storage, [](const Mutation& lhs, const Mutation& rhs) {
         return lhs < rhs;
     });
+    std::ranges::unique(storage);
 }
 
 template <typename T>

@@ -5,17 +5,17 @@
 #include "compact_genome.hpp"
 
 size_t Hash(size_t hash, MutationPosition position, char parent,
-    char reference) {
+    char mutated) {
     hash = HashCombine(hash, position.value);
     hash = HashCombine(hash, parent);
-    hash = HashCombine(hash, reference);
+    hash = HashCombine(hash, mutated);
     return hash;
 }
 
 size_t Hash(size_t hash, CollectionOf<Mutation> auto mutations) {
     for (auto i : mutations) {
         hash = Hash(hash, i.GetPosition(), i.GetParentNucleotide(),
-            i.GetReferenceNucleotide());
+            i.GetMutatedNucleotide());
     }
     return hash;
 }
@@ -27,6 +27,11 @@ size_t Hash(size_t hash,
     return hash;
 }
 
+static const auto RootMutations = [](const Mutation& mutation) -> Mutation {
+    return {mutation.GetPosition(), mutation.GetParentNucleotide(),
+        mutation.GetParentNucleotide()};
+};
+
 class MergeData {
 public:
     explicit MergeData(const HistoryDAG& dag) : dag_{dag} {
@@ -35,10 +40,16 @@ public:
 
         for (auto i : dag_.TraversePreOrder()) {
             auto& cg = GetOrInsert(cgs_, i.GetNode().GetId());
-            cg.AddMutations(i.GetEdge().GetMutations());
+            if (i.GetNode().IsRoot()) {
+                cg.SetMutations(i.GetEdge().GetMutations() |
+                    std::views::transform(RootMutations), true);
+                continue;
+            }
+            cg.SetMutations(i.GetEdge().GetMutations());
             Node parent = i.GetEdge().GetParent();
             if (not parent.IsRoot()) {
-                cg.AddMutations(parent.GetFirstParent().GetMutations());
+                cg.AddMutations(cgs_.at(parent.GetFirstParent().GetParent()
+                    .GetId().value).GetMutations());
             }
         }
 
@@ -96,6 +107,10 @@ public:
         return {cgs_.at(id.value), leafs};
     }
 
+    const std::vector<std::set<NodeId>>& GetCladeSets() const {
+        return clade_sets_;
+    }
+
 private:
     const HistoryDAG& dag_;
     std::vector<CompactGenome> cgs_;
@@ -108,8 +123,14 @@ HistoryDAG Merge(const HistoryDAG& reference, const HistoryDAG& source) {
     MergeData src_data{source};
 
     auto map = ref_data.BuildMap();
-    for (Node i : source.TraversePostOrder()) {
-        if (i.IsRoot()) continue;
+    MutableNode ua = result.AddNode({result.GetNodes().size()});
+    for (auto iter : source.TraversePostOrder()) {
+        Node i = iter.GetNode();
+        if (i.IsRoot()) {
+            result.AddEdge({result.GetEdges().size()}, ua, i, {0})
+                .SetMutations(iter.GetEdge().GetMutations() |
+                    std::views::transform(RootMutations));
+        }
         auto key = src_data.BuildKey(i.GetId());
         auto i_ref = map.find(key);
         NodeId corresponding_node;
@@ -132,10 +153,13 @@ HistoryDAG Merge(const HistoryDAG& reference, const HistoryDAG& source) {
                     break;
                 }
             }
-            if (not have_edge) result.AddEdge({result.GetEdges().size()},
-                corresponding_node, corresponding_child->second, {0});
+            if (not have_edge) {
+                result.AddEdge({result.GetEdges().size()},
+                corresponding_node, corresponding_child->second, {0})
+                .SetMutations(child.GetFirstParent().GetMutations());
+            }
         }
     }
-
+    result.BuildConnections();
     return result;
 }

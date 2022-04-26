@@ -9,7 +9,8 @@
 static void test_loading() {
     Benchmark load_time;
     load_time.start();
-    HistoryDAG dag = LoadHistoryDAGFromProtobufGZ("data/1final-tree-1.nh1.pb.gz");
+    HistoryDAG dag =
+        LoadHistoryDAGFromProtobufGZ("data/1final-tree-1.nh1.pb.gz");
     load_time.stop();
     // std::cout << "\nDAG loaded in " << load_time.durationMs() << " ms\n";
 

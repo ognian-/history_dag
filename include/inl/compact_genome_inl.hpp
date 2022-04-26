@@ -1,21 +1,25 @@
+void CompactGenome::SetMutations(CollectionOf<Mutation> auto mutations,
+    bool keep_trivial) {
+    mutations_ = {};
+    for (const Mutation& mutation : mutations) {
+        mutations_[mutation.GetPosition()] = {mutation.GetParentNucleotide(),
+                mutation.GetMutatedNucleotide()};
+    }
+    if (not keep_trivial) RemoveTrivial();
+}
+
 void CompactGenome::AddMutations(CollectionOf<Mutation> auto mutations) {
     for (const Mutation& mutation : mutations) {
         auto i = mutations_.find(mutation.GetPosition());
-        if (i == mutations_.end()) {
-            mutations_[mutation.GetPosition()] = {mutation.GetParentNucleotide(),
-                mutation.GetReferenceNucleotide()};
+        if (i != mutations_.end()) {
+            i->second.first = mutation.GetParentNucleotide();
         } else {
-            auto& [parent, reference] = i->second;
-            if (mutation.GetParentNucleotide() != reference) {
-                // Warning: old base does not match existing base in CG.
-                continue;
-            }
-            reference = mutation.GetReferenceNucleotide();
-            if (reference == parent) {
-                mutations_.erase(i);
-            }
+            auto& [parent, mutated] = mutations_[mutation.GetPosition()];
+            parent = mutation.GetParentNucleotide();
+            mutated = mutation.GetMutatedNucleotide();
         }
     }
+    RemoveTrivial();
 }
 
 CollectionOf<Mutation> auto CompactGenome::GetMutations() const {
@@ -30,4 +34,11 @@ bool CompactGenome::operator==(const CompactGenome& rhs) const {
 
 bool CompactGenome::operator<(const CompactGenome& rhs) const {
     return mutations_ < rhs.mutations_;
+}
+
+void CompactGenome::RemoveTrivial() {
+    std::erase_if(mutations_,
+    [](const std::pair<MutationPosition, std::pair<char, char>>& i) {
+        return i.second.first == i.second.second;
+    });
 }

@@ -18,12 +18,12 @@ HistoryDAG LoadHistoryDAGFromProtobufGZ(const std::string& path) {
     data.ParseFromIstream(&in);
     HistoryDAG dag;
     size_t edge_id = 0;
-    ParseNewick(data.newick(), [&](size_t id, std::string label,
+    ParseNewick(data.newick(), [&dag](size_t id, std::string label,
         std::optional<double> branch_length) {
             dag.AddNode({id});
             std::ignore = label;
             std::ignore = branch_length;
-        }, [&](size_t parent, size_t child) {
+        }, [&dag, &edge_id](size_t parent, size_t child) {
             dag.AddEdge({edge_id++}, dag.GetNode({parent}),
                 dag.GetNode({child}), {0});
         });
@@ -39,7 +39,7 @@ HistoryDAG LoadHistoryDAGFromProtobufGZ(const std::string& path) {
                 assert(mut.mut_nuc().size() == 1);
                 return {
                     {static_cast<size_t>(mut.position())},
-                    decode[mut.par_nuc()],
+                    decode[mut.ref_nuc()],
                     decode[mut.mut_nuc()[0]]
                 };
             }));
@@ -86,6 +86,18 @@ HistoryDAG LoadHistoryDAGFromJsonGZ(const std::string& path) {
         edge.SetMutations(std::views::all(cg));
     }
     result.BuildConnections();
+
+    for (MutableEdge i : result.TraversePreOrder()) {
+        if (i.GetParent().IsRoot()) continue;
+        auto parent_muts = i.GetParent().GetFirstParent().GetMutations();
+        std::set<Mutation> mut_set;
+        mut_set.insert(parent_muts.begin(), parent_muts.end());
+        std::vector<Mutation> muts;
+        for (auto j : i.GetMutations()) {
+            if (mut_set.find(j) == mut_set.end()) muts.push_back(j);
+        }
+        i.SetMutations(muts | std::views::all);
+    }
 
     return result;
 }

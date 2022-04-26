@@ -102,11 +102,65 @@ void PrintDag(HistoryDAG& dag) {
 	}
 }
 
+static std::string ToString(Node node, Edge edge) {
+	std::string result;
+	result += std::to_string(node.GetId().value);
+	result += ": ";
+	if (!node.IsRoot()) {
+		for (auto& i : node.GetFirstParent().GetMutations()) {
+			result += i.GetMutatedNucleotide();
+		}
+	} else {
+		for (auto& i : edge.GetMutations()) {
+			result += i.GetParentNucleotide();
+		}
+	}
+	return result;
+}
+
 void ToDOT(HistoryDAG& dag, std::ostream& out) {
 	out << "digraph {\n";
 	for (auto i : dag.GetEdges()) {
-		std::string parent = std::to_string(i.GetParent().GetId().value);
-		std::string child = std::to_string(i.GetChild().GetId().value);
+		std::string parent = ToString(i.GetParent(), i);
+		std::string child = ToString(i.GetChild(), i);
+		out << "  \"" << parent << "\" -> \"" << child << "\"\n";
+	}
+	out << "}\n";
+}
+
+static std::string ToString(Node node, Edge edge,
+	const std::vector<std::set<NodeId>>& clade_sets) {
+	std::string result;
+	result += std::to_string(node.GetId().value);
+	result += ": ";
+	if (!node.IsRoot()) {
+		for (auto& i : node.GetFirstParent().GetMutations()) {
+			result += i.GetMutatedNucleotide();
+		}
+	} else {
+		for (auto& i : edge.GetMutations()) {
+			result += i.GetParentNucleotide();
+		}
+	}
+
+	result += " [";
+	for (auto j : clade_sets.at(node.GetId().value)) {
+		Node leaf = node.GetDAG().GetNode(j);
+		for (auto& i : leaf.GetFirstParent().GetMutations()) {
+			result += i.GetMutatedNucleotide();
+		}
+	}
+	result += "]";
+
+	return result;
+}
+
+void ToDOT(HistoryDAG& dag, const std::vector<std::set<NodeId>>& clade_sets,
+    std::ostream& out) {
+	out << "digraph {\n";
+	for (auto i : dag.GetEdges()) {
+		std::string parent = ToString(i.GetParent(), i, clade_sets);
+		std::string child = ToString(i.GetChild(), i, clade_sets);
 		out << "  \"" << parent << "\" -> \"" << child << "\"\n";
 	}
 	out << "}\n";
