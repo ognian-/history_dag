@@ -129,7 +129,7 @@ void ToDOT(HistoryDAG& dag, std::ostream& out) {
 }
 
 static std::string ToString(Node node, Edge edge,
-	const std::vector<std::set<NodeId>>& clade_sets) {
+	const std::vector<std::vector<std::set<NodeId>>>& clade_sets) {
 	std::string result;
 	result += std::to_string(node.GetId().value);
 	result += ": ";
@@ -144,18 +144,28 @@ static std::string ToString(Node node, Edge edge,
 	}
 
 	result += " [";
-	for (auto j : clade_sets.at(node.GetId().value)) {
-		Node leaf = node.GetDAG().GetNode(j);
-		for (auto& i : leaf.GetFirstParent().GetMutations()) {
-			result += i.GetMutatedNucleotide();
+	bool remove_clade_sep = false;
+	for (auto& clade : clade_sets.at(node.GetId().value)) {
+		bool remove_leaf_sep = false;
+		for (auto leaf_id : clade) {
+			Node leaf = node.GetDAG().GetNode(leaf_id);
+			for (auto& i : leaf.GetFirstParent().GetMutations()) {
+				result += i.GetMutatedNucleotide();
+			}
+			result += ",";
+			remove_leaf_sep = true;
 		}
+		if (remove_leaf_sep) result.erase(result.size() - 1);
+		result += "|";
+		remove_clade_sep = true;
 	}
+	if (remove_clade_sep) result.erase(result.size() - 1);
 	result += "]";
 
 	return result;
 }
 
-void ToDOT(HistoryDAG& dag, const std::vector<std::set<NodeId>>& clade_sets,
+void ToDOT(HistoryDAG& dag, const std::vector<std::vector<std::set<NodeId>>>& clade_sets,
     std::ostream& out) {
 	out << "digraph {\n";
 	for (auto i : dag.GetEdges()) {

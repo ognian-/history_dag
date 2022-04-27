@@ -141,22 +141,23 @@ HistoryDAG Merge(const HistoryDAG& reference, const HistoryDAG& source) {
         } else {
             corresponding_node = i_ref->second;
         }
-        for (Node child : i.GetChildren() |
-            std::views::transform(Transform::GetChild)) {
+        for (Edge child_edge : i.GetChildren()) {
+            Node child = child_edge.GetChild();
             auto corresponding_child =
                 map.find(src_data.BuildKey(child.GetId()));
             bool have_edge = false;
             for (Edge edge : result.GetEdges()) {
                 if (edge.GetParent().GetId() == corresponding_node and
-                    edge.GetChild().GetId() == corresponding_child->second) {
+                    edge.GetChild().GetId() == corresponding_child->second and
+                    edge.GetClade() == child_edge.GetClade()) {
                     have_edge = true;
                     break;
                 }
             }
             if (not have_edge) {
                 result.AddEdge({result.GetEdges().size()},
-                corresponding_node, corresponding_child->second, {0})
-                .SetMutations(child.GetFirstParent().GetMutations());
+                corresponding_node, corresponding_child->second, child_edge.GetClade())
+                .SetMutations(child_edge.GetMutations());
             }
         }
     }
