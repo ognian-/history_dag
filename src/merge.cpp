@@ -34,10 +34,9 @@ static const auto RootMutations = [](const Mutation& mutation) -> Mutation {
 
 class MergeData {
 public:
-    explicit MergeData(const HistoryDAG& dag) : dag_{dag} {
+    explicit MergeData(const HistoryDAG& dag) : dag_{dag}, leaf_set_{dag} {
         cgs_.reserve(dag_.GetNodes().size());
-        clade_sets_.reserve(dag_.GetNodes().size());
-
+        
         for (auto i : dag_.TraversePreOrder()) {
             auto& cg = GetOrInsert(cgs_, i.GetNode().GetId());
             if (i.GetNode().IsRoot()) {
@@ -50,19 +49,6 @@ public:
             if (not parent.IsRoot()) {
                 cg.AddMutations(cgs_.at(parent.GetFirstParent().GetParent()
                     .GetId().value).GetMutations());
-            }
-        }
-
-        for (Node i : dag_.TraversePostOrder()) {
-            for (auto child : i.GetChildren() |
-                std::views::transform(Transform::GetChild)) {
-                auto& cs = GetOrInsert(clade_sets_, i.GetId());
-                if (child.IsLeaf()) {
-                    cs.insert(child.GetId());
-                } else {
-                    auto& leafs = clade_sets_.at(child.GetId().value);
-                    cs.insert(std::begin(leafs), std::end(leafs));
-                }
             }
         }
     }
@@ -85,13 +71,7 @@ public:
 
         for (NodeId i : dag_.GetNodes() |
             std::views::transform(Transform::GetId)) {
-            std::set<CompactGenome> leafs;
-            auto view = clade_sets_.at(i.value) |
-                std::views::transform([this](NodeId leaf_id) {
-                    return cgs_.at(leaf_id.value);
-                });
-            leafs.insert(view.begin(), view.end());
-            map[{cgs_.at(i.value), leafs}] = i;
+            map[BuildKey(i)] = i;
         }
         return map;
     }
@@ -99,22 +79,22 @@ public:
     std::pair<CompactGenome, std::set<CompactGenome>>
     BuildKey(NodeId id) const {
         std::set<CompactGenome> leafs;
-        auto view = clade_sets_.at(id.value) |
-            std::views::transform([this](NodeId id) {
-            return cgs_.at(id.value);
+        auto view = leaf_set_.GetLeafs(id) | std::views::join |
+            std::views::transform([this](Node leaf) -> const CompactGenome& {
+            return cgs_.at(leaf.GetId().value);
         });
-        leafs.insert(view.begin(), view.end());
+        for (auto i : view) leafs.insert(i);
         return {cgs_.at(id.value), leafs};
     }
 
-    const std::vector<std::set<NodeId>>& GetCladeSets() const {
-        return clade_sets_;
+    const LeafSet& GetLeafSet() const {
+        return leaf_set_;
     }
 
 private:
     const HistoryDAG& dag_;
     std::vector<CompactGenome> cgs_;
-    std::vector<std::set<NodeId>> clade_sets_;
+    LeafSet leaf_set_;
 };
 
 HistoryDAG Merge(const HistoryDAG& reference, const HistoryDAG& source) {

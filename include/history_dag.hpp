@@ -29,6 +29,7 @@
 #include "history_dag_node_storage.hpp"
 #include "history_dag_edge_storage.hpp"
 #include "traverse_value.hpp"
+#include "leaf_set.hpp"
 #include "counter_map.hpp"
 
 template <typename T, typename Weight>
@@ -131,3 +132,4 @@ private:
 #include "inl/pre_order_iterator_inl.hpp"
 #include "inl/post_order_iterator_inl.hpp"
 #include "inl/traverse_value_inl.hpp"
+#include "inl/leaf_set_inl.hpp"

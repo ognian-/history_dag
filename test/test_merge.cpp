@@ -7,27 +7,6 @@
 #include "hdag_ops.hpp"
 #include "benchmark.hpp"
 
-static std::vector<std::vector<std::set<NodeId>>> GetCladeSets(const HistoryDAG& dag) {
-    std::vector<std::vector<std::set<NodeId>>> clade_sets;
-    std::cout << "\n";
-    for (Node i : dag.TraversePostOrder()) {
-        for (auto clade : i.GetClades()) {
-            for (auto child : clade) {
-                auto& cs = GetOrInsert(GetOrInsert(clade_sets, i.GetId()), child.GetClade().value);
-                if (child.GetChild().IsLeaf()) {
-                    cs.insert(child.GetChild().GetId());
-                } else {
-                    auto& clades = clade_sets.at(child.GetChild().GetId().value);
-                    for (auto& leafs : clades) {
-                        cs.insert(std::begin(leafs), std::end(leafs));
-                    }
-                }
-            }
-        }
-    }
-    return clade_sets;
-}
-
 static void test_simple() {
     HistoryDAG lhs;
     for (size_t i = 0; i < 7; ++i) lhs.AddNode({i});
@@ -61,12 +40,12 @@ static void test_simple() {
     rhs.AddEdge({5}, {6}, {5}, {1}).SetMutations(muts5 | std::views::all);
     rhs.BuildConnections();
 
-    // ToDOT(lhs, GetCladeSets(lhs), std::cout);
-    // ToDOT(rhs, GetCladeSets(rhs), std::cout);
+    // ToDOT(lhs, LeafSet(lhs), std::cout);
+    // ToDOT(rhs, LeafSet(rhs), std::cout);
 
     HistoryDAG merged = Merge(lhs, rhs);
 
-    ToDOT(merged, GetCladeSets(merged), std::cout);
+    ToDOT(merged, LeafSet(merged), std::cout);
 }
 
 [[maybe_unused]]
@@ -98,7 +77,7 @@ static void test_real() {
 
 static void run_test() {
 	test_simple();
-    // test_real();
+    test_real();
 }
 
 [[maybe_unused]] static const auto test_added = add_test({
