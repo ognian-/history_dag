@@ -7,6 +7,7 @@
 #include "hdag_ops.hpp"
 #include "benchmark.hpp"
 
+[[maybe_unused]]
 static void test_simple() {
     HistoryDAG lhs;
     for (size_t i = 0; i < 7; ++i) lhs.AddNode({i});
@@ -40,12 +41,54 @@ static void test_simple() {
     rhs.AddEdge({5}, {6}, {5}, {1}).SetMutations(muts5 | std::views::all);
     rhs.BuildConnections();
 
-    // ToDOT(lhs, LeafSet(lhs), std::cout);
-    // ToDOT(rhs, LeafSet(rhs), std::cout);
-
     HistoryDAG merged = Merge(lhs, rhs);
 
     ToDOT(merged, LeafSet(merged), std::cout);
+}
+
+static void test_two_merges() {
+    HistoryDAG tree0;
+    for (size_t i = 0; i < 5; ++i) tree0.AddNode({i});
+    std::vector<Mutation> muts0{{{0}, 'A', 'A'}, {{1}, 'A', 'C'}};
+    std::vector<Mutation> muts1{{{0}, 'A', 'A'}, {{1}, 'A', 'G'}};
+    std::vector<Mutation> muts2{{{0}, 'A', 'A'}, {{1}, 'A', 'T'}};
+    std::vector<Mutation> muts3{{{0}, 'A', 'A'}, {{1}, 'A', 'A'}};
+    tree0.AddEdge({0}, {3}, {0}, {0}).SetMutations(muts0 | std::views::all);
+    tree0.AddEdge({1}, {3}, {1}, {1}).SetMutations(muts1 | std::views::all);
+    tree0.AddEdge({2}, {4}, {2}, {0}).SetMutations(muts2 | std::views::all);
+    tree0.AddEdge({3}, {4}, {3}, {1}).SetMutations(muts3 | std::views::all);
+    tree0.BuildConnections();
+
+    HistoryDAG tree1;
+    for (size_t i = 0; i < 5; ++i) tree1.AddNode({i});
+    muts0 = {{{0}, 'A', 'A'}, {{1}, 'G', 'C'}};
+    muts1 = {{{0}, 'A', 'A'}, {{1}, 'G', 'G'}};
+    muts2 = {{{0}, 'A', 'A'}, {{1}, 'A', 'T'}};
+    muts3 = {{{0}, 'A', 'A'}, {{1}, 'A', 'G'}};
+    tree1.AddEdge({0}, {3}, {0}, {0}).SetMutations(muts0 | std::views::all);
+    tree1.AddEdge({1}, {3}, {1}, {1}).SetMutations(muts1 | std::views::all);
+    tree1.AddEdge({2}, {4}, {2}, {0}).SetMutations(muts2 | std::views::all);
+    tree1.AddEdge({3}, {4}, {3}, {1}).SetMutations(muts3 | std::views::all);
+    tree1.BuildConnections();
+
+    HistoryDAG tree2;
+    for (size_t i = 0; i < 5; ++i) tree2.AddNode({i});
+    muts0 = {{{0}, 'A', 'A'}, {{1}, 'G', 'T'}};
+    muts1 = {{{0}, 'A', 'A'}, {{1}, 'G', 'G'}};
+    muts2 = {{{0}, 'A', 'A'}, {{1}, 'G', 'C'}};
+    muts3 = {{{0}, 'A', 'A'}, {{1}, 'G', 'G'}};
+    tree2.AddEdge({0}, {3}, {0}, {0}).SetMutations(muts0 | std::views::all);
+    tree2.AddEdge({1}, {3}, {1}, {1}).SetMutations(muts1 | std::views::all);
+    tree2.AddEdge({2}, {4}, {2}, {0}).SetMutations(muts2 | std::views::all);
+    tree2.AddEdge({3}, {4}, {3}, {1}).SetMutations(muts3 | std::views::all);
+    tree2.BuildConnections();
+
+    HistoryDAG merged01 = Merge(tree0, tree1);
+    HistoryDAG merged012 = Merge(merged01, tree2);
+
+    ToDOT(merged01, LeafSet(merged01), std::cout);
+
+    ToDOT(merged012, LeafSet(merged012), std::cout);
 }
 
 [[maybe_unused]]
@@ -76,8 +119,9 @@ static void test_real() {
 }
 
 static void run_test() {
-	test_simple();
-    test_real();
+	// test_simple();
+    test_two_merges();
+    // test_real();
 }
 
 [[maybe_unused]] static const auto test_added = add_test({

@@ -21,9 +21,9 @@ size_t Hash(size_t hash, CollectionOf<Mutation> auto mutations) {
 }
 
 size_t Hash(size_t hash,
-    const std::pair<CompactGenome, std::set<CompactGenome>>& pair) {
+    const std::pair<CompactGenome, std::vector<std::set<CompactGenome>>>& pair) {
     hash = Hash(hash, pair.first.GetMutations());
-    for (auto& i : pair.second) hash = Hash(hash, i.GetMutations());
+    for (auto i : pair.second | std::views::join) hash = Hash(hash, i.GetMutations());
     return hash;
 }
 
@@ -55,17 +55,17 @@ public:
 
     auto BuildMap() const {
         auto HashFn = [this]
-        (const std::pair<CompactGenome, std::set<CompactGenome>>& pair) {
+        (const std::pair<CompactGenome, std::vector<std::set<CompactGenome>>>& pair) {
             return Hash(0, pair);
         };
 
         auto EqFn = [this]
-        (const std::pair<CompactGenome, std::set<CompactGenome>>& lhs,
-        const std::pair<CompactGenome, std::set<CompactGenome>>& rhs) {
+        (const std::pair<CompactGenome, std::vector<std::set<CompactGenome>>>& lhs,
+        const std::pair<CompactGenome, std::vector<std::set<CompactGenome>>>& rhs) {
             return lhs == rhs;
         };
 
-        std::unordered_map<std::pair<CompactGenome, std::set<CompactGenome>>,
+        std::unordered_map<std::pair<CompactGenome, std::vector<std::set<CompactGenome>>>,
             NodeId, decltype(HashFn), decltype(EqFn)> map{
                 dag_.GetNodes().size(), HashFn, EqFn};
 
@@ -76,14 +76,14 @@ public:
         return map;
     }
 
-    std::pair<CompactGenome, std::set<CompactGenome>>
+    std::pair<CompactGenome, std::vector<std::set<CompactGenome>>>
     BuildKey(NodeId id) const {
-        std::set<CompactGenome> leafs;
-        auto view = leaf_set_.GetLeafs(id) | std::views::join |
-            std::views::transform([this](Node leaf) -> const CompactGenome& {
-            return cgs_.at(leaf.GetId().value);
-        });
-        for (auto i : view) leafs.insert(i);
+        std::vector<std::set<CompactGenome>> leafs;
+        for (auto i : leaf_set_.GetLeafs(id)) {
+            std::set<CompactGenome> set;
+            for (auto j : i) set.insert(cgs_.at(j.GetId().value));
+            leafs.push_back(set);
+        }
         return {cgs_.at(id.value), leafs};
     }
 
