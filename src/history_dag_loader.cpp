@@ -39,7 +39,7 @@ HistoryDAG LoadHistoryDAGFromProtobufGZ(const std::string& path) {
                 assert(mut.mut_nuc().size() == 1);
                 return {
                     {static_cast<size_t>(mut.position())},
-                    decode[mut.ref_nuc()],
+                    decode[mut.par_nuc()],
                     decode[mut.mut_nuc()[0]]
                 };
             }));

@@ -1,40 +1,120 @@
 #include <set>
+#include <map>
 
 #include "merge.hpp"
 
-static std::string ToString(Node node, const LeafSet& leaf_set) {
-	std::string result;
-    
-	if (!node.IsRoot()) {
+class NodeLabel {
+public:
+    NodeLabel() : label_{"p"} {}
+
+    explicit NodeLabel(Node node) {
+        if (!node.IsRoot()) {
 		for (auto& i : node.GetFirstParent().GetMutations()) {
-			result += i.GetMutatedNucleotide();
-		}
-	} else {
-		for (auto& i : (*node.GetChildren().begin()).GetMutations()) {
-			result += i.GetParentNucleotide();
-		}
-	}
+                label_ += i.GetMutatedNucleotide();
+            }
+        } else {
+            for (auto& i : (*node.GetChildren().begin()).GetMutations()) {
+                label_ += i.GetParentNucleotide();
+            }
+        }
+    }
 
-	result += " [";
-	bool remove_clade_sep = false;
-	for (auto clade : leaf_set.GetLeafs(node.GetId())) {
-		bool remove_leaf_sep = false;
-		for (auto leaf : clade) {
-			for (auto& i : leaf.GetFirstParent().GetMutations()) {
-				result += i.GetMutatedNucleotide();
-			}
-			result += ",";
-			remove_leaf_sep = true;
-		}
-		if (remove_leaf_sep) result.erase(result.size() - 1);
-		result += "|";
-		remove_clade_sep = true;
-	}
-	if (remove_clade_sep) result.erase(result.size() - 1);
-	result += "]";
+    const std::string& GetString() const {
+        return label_;
+    }
 
-	return result;
-}
+    bool operator==(const NodeLabel& rhs) const {
+        return label_ == rhs.label_;
+    }
+
+    bool operator<(const NodeLabel& rhs) const {
+        return label_ < rhs.label_;
+    }
+
+private:
+    std::string label_;
+};
+
+class NodeKey {
+public:
+
+    NodeKey() = default;
+
+    NodeKey(Node node, decltype(std::declval<LeafSet>().GetLeafs({})) leafs) :
+        label_{node} {
+        for (auto i : leafs) {
+            std::set<NodeLabel> set;
+            for (auto j : i) set.insert(NodeLabel{j});
+            leaf_sets_.push_back(set);
+        }
+    }
+
+    bool operator==(const NodeKey& rhs) const {
+        return label_ == rhs.label_ &&
+            leaf_sets_ == rhs.leaf_sets_;
+    }
+
+    bool operator<(const NodeKey& rhs) const {
+        if (label_ < rhs.label_) return true;
+        if (rhs.label_ < label_) return false;
+        return leaf_sets_ < rhs.leaf_sets_;
+    }
+
+    std::string ToString() const {
+        std::string result;
+        result += label_.GetString();
+        result += " [";
+        for (auto& i : leaf_sets_) {
+            for (auto& j : i) {
+                result += j.GetString();
+                result += ", ";
+            }
+            result += " | ";
+        }
+        result += "]";
+        return result;
+    }
+
+private:
+    NodeLabel label_;
+    std::vector<std::set<NodeLabel>> leaf_sets_;
+};
+
+class EdgeKey {
+public:
+    EdgeKey(NodeKey parent, NodeKey child, CladeIdx clade) :
+        parent_{parent}, child_{child}, clade_{clade} {}
+
+    const NodeKey& GetParent() const {
+        return parent_;
+    }
+
+    const NodeKey& GetChild() const {
+        return child_;
+    }
+
+    CladeIdx GetClade() const {
+        return clade_;
+    }
+
+    bool operator==(const EdgeKey& rhs) const {
+        return parent_ == rhs.parent_ &&
+            child_ == rhs.child_;
+    }
+
+    bool operator<(const EdgeKey& rhs) const {
+        if (parent_ < rhs.parent_) return true;
+        if (rhs.parent_ < parent_) return false;
+        if (child_ < rhs.child_) return true;
+        if (rhs.child_ < child_) return false;
+        return clade_ < rhs.clade_;
+    }
+
+private:
+    NodeKey parent_;
+    NodeKey child_;
+    CladeIdx clade_;
+};
 
 static const auto RootMutations = [](const Mutation& mutation) -> Mutation {
     return {mutation.GetPosition(), mutation.GetParentNucleotide(),
@@ -45,15 +125,15 @@ HistoryDAG Merge(
     const std::vector<std::reference_wrapper<const HistoryDAG>>& trees) {
     std::vector<LeafSet> leafs;
     for (auto i : trees) leafs.emplace_back(i.get());
-    std::unordered_map<std::string, NodeId> nodes;
-    std::set<std::pair<std::string, std::string>> edges;
+    std::map<NodeKey, NodeId> nodes;
+    std::set<EdgeKey> edges;
     HistoryDAG result;
 
     MutableNode ua = result.AddNode({0});
 
     for (size_t i = 0; i < trees.size(); ++i) {
         for (Node node : trees[i].get().GetNodes()) {
-            const std::string key =  ToString(node, leafs[i]);
+            const NodeKey key{node, leafs[i].GetLeafs(node.GetId())};
             auto i = nodes.find(key);
             NodeId id;
             if (i == nodes.end()) {
@@ -63,7 +143,7 @@ HistoryDAG Merge(
                 id = nodes.at(key);
             }
             if (node.IsRoot()) {
-                if (edges.insert({"p", key}).second) {
+                if (edges.insert({NodeKey{}, key, {0}}).second) {
                     result.AddEdge({result.GetEdges().size()},
                         ua.GetId(), id, {0})
                         .SetMutations((*node.GetChildren().begin())
@@ -75,17 +155,19 @@ HistoryDAG Merge(
 
     for (size_t i = 0; i < trees.size(); ++i) {
         for (Edge edge : trees[i].get().GetEdges()) {
-            const std::pair<std::string, std::string> key =
-                {ToString(edge.GetParent(), leafs[i]),
-                ToString(edge.GetChild(), leafs[i])};
-            if (key.first == key.second) continue;
+            const EdgeKey key =
+                {{edge.GetParent(), leafs[i].GetLeafs(edge.GetParent().GetId())},
+                {edge.GetChild(), leafs[i].GetLeafs(edge.GetChild().GetId())},
+                edge.GetClade()};
+            if (key.GetParent() == key.GetChild()) continue;
+
             auto i = edges.find(key);
             if (i == edges.end()) {
                 edges.insert(key);
                 result.AddEdge({result.GetEdges().size()},
-                    nodes.at(key.first),
-                    nodes.at(key.second),
-                    edge.GetClade())
+                    nodes.at(key.GetParent()),
+                    nodes.at(key.GetChild()),
+                    key.GetClade())
                     .SetMutations(edge.GetMutations());
             }
         }
