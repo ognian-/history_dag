@@ -41,11 +41,11 @@ static void test_simple() {
     rhs.AddEdge({5}, {6}, {5}, {1}).SetMutations(muts5 | std::views::all);
     rhs.BuildConnections();
 
-    HistoryDAG merged = Merge(lhs, rhs);
-
+    HistoryDAG merged = Merge({lhs, rhs});
     ToDOT(merged, LeafSet(merged), std::cout);
 }
 
+[[maybe_unused]]
 static void test_two_merges() {
     HistoryDAG tree0;
     for (size_t i = 0; i < 5; ++i) tree0.AddNode({i});
@@ -83,12 +83,8 @@ static void test_two_merges() {
     tree2.AddEdge({3}, {4}, {3}, {1}).SetMutations(muts3 | std::views::all);
     tree2.BuildConnections();
 
-    HistoryDAG merged01 = Merge(tree0, tree1);
-    HistoryDAG merged012 = Merge(merged01, tree2);
-
-    ToDOT(merged01, LeafSet(merged01), std::cout);
-
-    ToDOT(merged012, LeafSet(merged012), std::cout);
+    HistoryDAG merged = Merge({tree0, tree1, tree2});
+    ToDOT(merged, LeafSet(merged), std::cout);
 }
 
 [[maybe_unused]]
@@ -101,7 +97,7 @@ static void test_real() {
         LoadHistoryDAGFromProtobufGZ("data/1final-tree-1.nh1.pb.gz");
     Benchmark merge_time;
     merge_time.start();
-    HistoryDAG merged = Merge(reference, source);
+    HistoryDAG merged = Merge({reference, source});
     merge_time.stop();
     std::cout << "\nDAGs merged in " << merge_time.durationMs() << " ms\n";
 
@@ -119,7 +115,8 @@ static void test_real() {
 }
 
 static void run_test() {
-	// test_simple();
+    std::cout << "\n";
+	test_simple();
     test_two_merges();
     // test_real();
 }

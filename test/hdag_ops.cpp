@@ -130,13 +130,12 @@ void ToDOT(HistoryDAG& dag, std::ostream& out) {
 
 static std::string ToString(Node node, Edge edge, const LeafSet& leaf_set) {
 	std::string result;
-	result += std::to_string(node.GetId().value);
-	result += ": ";
 	if (!node.IsRoot()) {
 		for (auto& i : node.GetFirstParent().GetMutations()) {
 			result += i.GetMutatedNucleotide();
 		}
 	} else {
+		return "p";
 		for (auto& i : edge.GetMutations()) {
 			result += i.GetParentNucleotide();
 		}

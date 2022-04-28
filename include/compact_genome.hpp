@@ -12,6 +12,9 @@ public:
     inline void AddMutations(CollectionOf<Mutation> auto mutations);
     inline CollectionOf<Mutation> auto GetMutations() const;
 
+    inline char GetParentNucleotideAt(MutationPosition position) const;
+    inline char GetMutatedNucleotideAt(MutationPosition position) const;
+
     inline bool operator==(const CompactGenome& rhs) const;
     inline bool operator<(const CompactGenome& rhs) const;
 

@@ -28,6 +28,14 @@ CollectionOf<Mutation> auto CompactGenome::GetMutations() const {
     });
 }
 
+char CompactGenome::GetParentNucleotideAt(MutationPosition position) const {
+    return mutations_.at(position).first;
+}
+
+char CompactGenome::GetMutatedNucleotideAt(MutationPosition position) const {
+    return mutations_.at(position).second;
+}
+
 bool CompactGenome::operator==(const CompactGenome& rhs) const {
     return mutations_ == rhs.mutations_;
 }
