@@ -1,21 +1,65 @@
 #include <set>
 #include <map>
+#include <optional>
 
 #include "merge.hpp"
+
+class CompactGenome {
+public:
+
+    std::optional<char> Get(MutationPosition position) const {
+        auto i = map_.find(position);
+        if (i == map_.end()) return std::nullopt;
+        return i->second;
+    }
+
+    void Set(MutationPosition position, char mutation) {
+        auto i = map_.find(position);
+        if (i == map_.end()) {
+            map_.insert(i, {position, mutation});
+        }
+    }
+
+    void Add(MutationPosition position, char mutation, const CompactGenome& root_seq) {
+        std::optional<char> root = root_seq.Get(position);
+        if (not root.has_value()) {
+            map_[position] = mutation;
+        } else {
+            if (root.value() != mutation) {
+                map_[position] = mutation;
+            } else {
+                map_.erase(position);
+            }
+        }
+    };
+
+    const std::map<MutationPosition, char>& GetMutations() const {
+        return map_;
+    }
+
+    std::string ToString() const {
+        std::string result;
+        for (auto mut : GetMutations()) {
+            result += std::to_string(mut.first.value);
+            result += mut.second;
+            result += ',';
+        }
+        if (not result.empty()) result.erase(result.size() - 1);
+        return result;
+    }
+
+private:
+    std::map<MutationPosition, char> map_;
+};
 
 class NodeLabel {
 public:
     NodeLabel() : label_{"p"} {}
 
-    explicit NodeLabel(Node node) {
-        if (!node.IsRoot()) {
-		for (auto& i : node.GetFirstParent().GetMutations()) {
-                label_ += i.GetMutatedNucleotide();
-            }
-        } else {
-            for (auto& i : (*node.GetChildren().begin()).GetMutations()) {
-                label_ += i.GetParentNucleotide();
-            }
+    explicit NodeLabel(const CompactGenome& cg) {
+        for (auto i : cg.GetMutations()) {
+            label_ += std::to_string(i.first.value);
+            label_ += i.second;
         }
     }
 
@@ -40,11 +84,12 @@ public:
 
     NodeKey() = default;
 
-    NodeKey(Node node, decltype(std::declval<LeafSet>().GetLeafs({})) leafs) :
-        label_{node} {
+    NodeKey(const CompactGenome& cg, const std::vector<CompactGenome>& cgs,
+        decltype(std::declval<LeafSet>().GetLeafs({})) leafs) :
+        label_{cg} {
         for (auto i : leafs) {
             std::set<NodeLabel> set;
-            for (auto j : i) set.insert(NodeLabel{j});
+            for (auto j : i) set.insert(NodeLabel{cgs.at(j.GetId().value)});
             leaf_sets_.push_back(set);
         }
     }
@@ -99,7 +144,8 @@ public:
 
     bool operator==(const EdgeKey& rhs) const {
         return parent_ == rhs.parent_ &&
-            child_ == rhs.child_;
+            child_ == rhs.child_ &&
+            clade_ == rhs.clade_;
     }
 
     bool operator<(const EdgeKey& rhs) const {
@@ -108,6 +154,16 @@ public:
         if (child_ < rhs.child_) return true;
         if (rhs.child_ < child_) return false;
         return clade_ < rhs.clade_;
+    }
+
+    std::string ToString() const {
+        std::string result;
+        result += "\"";
+        result += parent_.ToString();
+        result += "\" -> \"";
+        result += child_.ToString();
+        result += "\"";
+        return result;
     }
 
 private:
@@ -121,8 +177,22 @@ static const auto RootMutations = [](const Mutation& mutation) -> Mutation {
         mutation.GetParentNucleotide()};
 };
 
+static void ComputeCG(const HistoryDAG& tree, std::vector<CompactGenome>& cgs) {
+
+    CompactGenome root_seq;
+    std::ignore = GetOrInsert(cgs, tree.GetRoot().GetId());
+    for (Edge edge : tree.TraversePreOrder()) {
+        auto& cg = GetOrInsert(cgs, edge.GetChild().GetId());
+        for (auto mut : edge.GetMutations()) {
+            root_seq.Set(mut.GetPosition(), mut.GetParentNucleotide());
+            cg.Add(mut.GetPosition(), mut.GetMutatedNucleotide(), root_seq);
+        }
+    }
+}
+
 HistoryDAG Merge(
     const std::vector<std::reference_wrapper<const HistoryDAG>>& trees) {
+    std::vector<std::vector<CompactGenome>> cgs;
     std::vector<LeafSet> leafs;
     for (auto i : trees) leafs.emplace_back(i.get());
     std::map<NodeKey, NodeId> nodes;
@@ -131,9 +201,17 @@ HistoryDAG Merge(
 
     MutableNode ua = result.AddNode({0});
 
-    for (size_t i = 0; i < trees.size(); ++i) {
-        for (Node node : trees[i].get().GetNodes()) {
-            const NodeKey key{node, leafs[i].GetLeafs(node.GetId())};
+    for (size_t tree_idx = 0; tree_idx < trees.size(); ++tree_idx) {
+        const HistoryDAG& tree = trees[tree_idx].get();
+        auto& tree_cgs = GetOrInsert(cgs, tree_idx);
+
+        ComputeCG(tree, tree_cgs);
+
+        for (Node node : tree.GetNodes()) {
+            if (node.IsLeaf()) assert(leafs[tree_idx].GetLeafs(node.GetId()).size() == 0);
+            if (leafs[tree_idx].GetLeafs(node.GetId()).size() == 0) assert(node.IsLeaf());
+
+            const NodeKey key{tree_cgs.at(node.GetId().value), tree_cgs, leafs[tree_idx].GetLeafs(node.GetId())};
             auto i = nodes.find(key);
             NodeId id;
             if (i == nodes.end()) {
@@ -145,22 +223,21 @@ HistoryDAG Merge(
             if (node.IsRoot()) {
                 if (edges.insert({NodeKey{}, key, {0}}).second) {
                     result.AddEdge({result.GetEdges().size()},
-                        ua.GetId(), id, {0})
-                        .SetMutations((*node.GetChildren().begin())
-                        .GetMutations() | std::views::transform(RootMutations));
+                        ua.GetId(), id, {0});
                 }
             }
         }
     }
 
-    for (size_t i = 0; i < trees.size(); ++i) {
-        for (Edge edge : trees[i].get().GetEdges()) {
+    for (size_t tree_idx = 0; tree_idx < trees.size(); ++tree_idx) {
+        const HistoryDAG& tree = trees[tree_idx].get();
+        auto& tree_cgs = cgs.at(tree_idx);
+        for (Edge edge : tree.GetEdges()) {
+            NodeId parent = edge.GetParent().GetId(), child = edge.GetChild().GetId();
             const EdgeKey key =
-                {{edge.GetParent(), leafs[i].GetLeafs(edge.GetParent().GetId())},
-                {edge.GetChild(), leafs[i].GetLeafs(edge.GetChild().GetId())},
+                {{tree_cgs.at(parent.value), tree_cgs, leafs[tree_idx].GetLeafs(parent)},
+                {tree_cgs.at(child.value), tree_cgs, leafs[tree_idx].GetLeafs(child)},
                 edge.GetClade()};
-            if (key.GetParent() == key.GetChild()) continue;
-
             auto i = edges.find(key);
             if (i == edges.end()) {
                 edges.insert(key);

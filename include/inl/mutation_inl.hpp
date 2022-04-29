@@ -12,9 +12,12 @@ char Mutation::GetParentNucleotide() const { return parent_nucleotide_; }
 char Mutation::GetMutatedNucleotide() const { return mutated_nucleotide_; }
 
 bool Mutation::operator<(const Mutation& rhs) const {
-    return position_ < rhs.position_ &&
-        mutated_nucleotide_ < rhs.mutated_nucleotide_ &&
-        parent_nucleotide_ < rhs.parent_nucleotide_;
+    if (position_ < rhs.position_) return true;
+    if (rhs.position_ < position_) return false;
+    return mutated_nucleotide_ < rhs.mutated_nucleotide_;
+    if (mutated_nucleotide_ < rhs.mutated_nucleotide_) return true;
+    if (rhs.mutated_nucleotide_ < mutated_nucleotide_) return false;
+    return parent_nucleotide_ < rhs.parent_nucleotide_;
 }
 
 bool Mutation::operator==(const Mutation& rhs) const {

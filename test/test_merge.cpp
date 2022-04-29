@@ -108,7 +108,7 @@ static void test_real() {
     std::cout << "Reference edges: " << reference.GetEdges().size() << "\n\n";
 
     std::cout << "Correct nodes: " << correct_result.GetNodes().size() << "\n";
-    std::cout << "Correct edges: " << correct_result.GetEdges().size() << "\n";
+    std::cout << "Correct edges: " << correct_result.GetEdges().size() << "\n\n";
 
     std::cout << "Merged nodes: " << merged.GetNodes().size() << "\n";
     std::cout << "Merged edges: " << merged.GetEdges().size() << "\n";  
@@ -118,7 +118,7 @@ static void run_test() {
     std::cout << "\n";
 	test_simple();
     test_two_merges();
-    // test_real();
+    test_real();
 }
 
 [[maybe_unused]] static const auto test_added = add_test({

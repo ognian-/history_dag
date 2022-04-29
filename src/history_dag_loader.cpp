@@ -18,14 +18,15 @@ HistoryDAG LoadHistoryDAGFromProtobufGZ(const std::string& path) {
     data.ParseFromIstream(&in);
     HistoryDAG dag;
     size_t edge_id = 0;
+    std::unordered_map<size_t, size_t> num_children;
     ParseNewick(data.newick(), [&dag](size_t id, std::string label,
         std::optional<double> branch_length) {
             dag.AddNode({id});
             std::ignore = label;
             std::ignore = branch_length;
-        }, [&dag, &edge_id](size_t parent, size_t child) {
+        }, [&dag, &edge_id, &num_children](size_t parent, size_t child) {
             dag.AddEdge({edge_id++}, dag.GetNode({parent}),
-                dag.GetNode({child}), {0});
+                dag.GetNode({child}), {num_children[parent]++});
         });
     dag.BuildConnections();
 
@@ -44,6 +45,7 @@ HistoryDAG LoadHistoryDAGFromProtobufGZ(const std::string& path) {
                 };
             }));
     }
+
     std::unordered_map<std::string, std::vector<std::string>> condensed_nodes;
     for (auto& i : data.condensed_nodes()) {
         condensed_nodes[i.node_name()] = {i.condensed_leaves().begin(),
