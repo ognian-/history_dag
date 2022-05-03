@@ -5,7 +5,7 @@ LeafSet::LeafSet(const HistoryDAG& dag) : dag_{dag} {
             for (auto child : clade) {
                 auto& cs = GetOrInsert(GetOrInsert(leaf_sets_, i.GetId()),
                     child.GetClade().value);
-                if (child.GetChild().IsLeaf()) {
+                if (child.IsLeaf()) {
                     cs.insert(child.GetChild().GetId());
                 } else {
                     auto& clades =

@@ -13,25 +13,14 @@ public:
         return i->second;
     }
 
-    void Set(MutationPosition position, char mutation) {
-        auto i = map_.find(position);
-        if (i == map_.end()) {
-            map_.insert(i, {position, mutation});
+    void SetCG(CollectionOf<Mutation> auto muts, const CompactGenome& parent) {
+        map_ = parent.map_;
+        for (Mutation i : muts) {
+            MutationPosition position = i.GetPosition();
+            char mutation = i.GetMutatedNucleotide();
+            map_[position] = mutation;
         }
     }
-
-    void Add(MutationPosition position, char mutation, const CompactGenome& root_seq) {
-        std::optional<char> root = root_seq.Get(position);
-        if (not root.has_value()) {
-            map_[position] = mutation;
-        } else {
-            if (root.value() != mutation) {
-                map_[position] = mutation;
-            } else {
-                map_.erase(position);
-            }
-        }
-    };
 
     const std::map<MutationPosition, char>& GetMutations() const {
         return map_;
@@ -179,13 +168,14 @@ static const auto RootMutations = [](const Mutation& mutation) -> Mutation {
 
 static void ComputeCG(const HistoryDAG& tree, std::vector<CompactGenome>& cgs) {
 
-    CompactGenome root_seq;
-    std::ignore = GetOrInsert(cgs, tree.GetRoot().GetId());
-    for (Edge edge : tree.TraversePreOrder()) {
-        auto& cg = GetOrInsert(cgs, edge.GetChild().GetId());
-        for (auto mut : edge.GetMutations()) {
-            root_seq.Set(mut.GetPosition(), mut.GetParentNucleotide());
-            cg.Add(mut.GetPosition(), mut.GetMutatedNucleotide(), root_seq);
+    cgs.resize(tree.GetNodes().size());
+    for (auto iter : tree.TraversePreOrder()) {
+        auto& cg = GetOrInsert(cgs, iter.GetEdge().GetChild().GetId());
+        if (iter.IsRoot()) {
+            cg.SetCG(iter.GetEdge().GetMutations(), {});
+        } else {
+            cg.SetCG(iter.GetEdge().GetMutations(),
+                cgs.at(iter.GetNode().GetFirstParent().GetParent().GetId().value));
         }
     }
 }
@@ -199,6 +189,7 @@ HistoryDAG Merge(
     std::set<EdgeKey> edges;
     HistoryDAG result;
 
+
     MutableNode ua = result.AddNode({0});
 
     for (size_t tree_idx = 0; tree_idx < trees.size(); ++tree_idx) {
@@ -208,9 +199,6 @@ HistoryDAG Merge(
         ComputeCG(tree, tree_cgs);
 
         for (Node node : tree.GetNodes()) {
-            if (node.IsLeaf()) assert(leafs[tree_idx].GetLeafs(node.GetId()).size() == 0);
-            if (leafs[tree_idx].GetLeafs(node.GetId()).size() == 0) assert(node.IsLeaf());
-
             const NodeKey key{tree_cgs.at(node.GetId().value), tree_cgs, leafs[tree_idx].GetLeafs(node.GetId())};
             auto i = nodes.find(key);
             NodeId id;
@@ -218,12 +206,14 @@ HistoryDAG Merge(
                 id = result.AddNode({result.GetNodes().size()}).GetId();
                 nodes[key] = id;
             } else {
+                assert(tree_idx != 0);
                 id = nodes.at(key);
             }
             if (node.IsRoot()) {
                 if (edges.insert({NodeKey{}, key, {0}}).second) {
                     result.AddEdge({result.GetEdges().size()},
-                        ua.GetId(), id, {0});
+                        ua.GetId(), id, {0})
+                        .SetMutations((*node.GetChildren().begin()).GetMutations() | std::views::transform(RootMutations));
                 }
             }
         }
@@ -245,7 +235,10 @@ HistoryDAG Merge(
                     nodes.at(key.GetParent()),
                     nodes.at(key.GetChild()),
                     key.GetClade())
-                    .SetMutations(edge.GetMutations());
+                    .SetMutations(tree_cgs.at(child.value).GetMutations() | std::views::transform([](auto& mut) {
+                        return Mutation{mut.first, mut.second, mut.second};
+                    }));
+                    // .SetMutations(edge.GetMutations());
             }
         }
     }

@@ -15,6 +15,9 @@ public:
 	operator Node() const;
 	operator Edge() const;
 
+	bool IsRoot() const;
+	bool IsLeaf() const;
+
 private:
 	T dag_;
 	const NodeId node_;

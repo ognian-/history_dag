@@ -72,6 +72,6 @@ bool PreOrderIterator<NodeType>::operator!=(
 template <typename NodeType>
 std::optional<typename PreOrderIterator<NodeType>::EdgeType>
 PreOrderIterator<NodeType>::GetFirstChild(EdgeType edge) {
-    if (edge.GetChild().IsLeaf()) return std::nullopt;
+    if (edge.IsLeaf()) return std::nullopt;
     return *edge.GetChild().GetChildren().begin();
 }

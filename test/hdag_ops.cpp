@@ -60,19 +60,19 @@ HistoryDAG GenerateBinaryTree() {
     HistoryDAG dag;
     for (size_t i = 0; i < 15; ++i) dag.AddNode({i});
     dag.AddEdge({0}, dag.GetNode({8}), dag.GetNode({0}), {0});
-    dag.AddEdge({1}, dag.GetNode({8}), dag.GetNode({1}), {0});
+    dag.AddEdge({1}, dag.GetNode({8}), dag.GetNode({1}), {1});
     dag.AddEdge({2}, dag.GetNode({9}), dag.GetNode({2}), {0});
-    dag.AddEdge({3}, dag.GetNode({9}), dag.GetNode({3}), {0});
+    dag.AddEdge({3}, dag.GetNode({9}), dag.GetNode({3}), {1});
     dag.AddEdge({4}, dag.GetNode({10}), dag.GetNode({4}), {0});
-    dag.AddEdge({5}, dag.GetNode({10}), dag.GetNode({5}), {0});
+    dag.AddEdge({5}, dag.GetNode({10}), dag.GetNode({5}), {1});
     dag.AddEdge({6}, dag.GetNode({11}), dag.GetNode({6}), {0});
-    dag.AddEdge({7}, dag.GetNode({11}), dag.GetNode({7}), {0});
+    dag.AddEdge({7}, dag.GetNode({11}), dag.GetNode({7}), {1});
     dag.AddEdge({8}, dag.GetNode({12}), dag.GetNode({8}), {0});
-    dag.AddEdge({9}, dag.GetNode({12}), dag.GetNode({9}), {0});
+    dag.AddEdge({9}, dag.GetNode({12}), dag.GetNode({9}), {1});
     dag.AddEdge({10}, dag.GetNode({13}), dag.GetNode({10}), {0});
-    dag.AddEdge({11}, dag.GetNode({13}), dag.GetNode({11}), {0});
+    dag.AddEdge({11}, dag.GetNode({13}), dag.GetNode({11}), {1});
     dag.AddEdge({12}, dag.GetNode({14}), dag.GetNode({12}), {0});
-    dag.AddEdge({13}, dag.GetNode({14}), dag.GetNode({13}), {0});
+    dag.AddEdge({13}, dag.GetNode({14}), dag.GetNode({13}), {1});
     dag.BuildConnections();
 	return dag;
 }
@@ -102,43 +102,13 @@ void PrintDag(HistoryDAG& dag) {
 	}
 }
 
-static std::string ToString(Node node, Edge edge) {
+static std::string ToString(Node node, const LeafSet& leaf_set) {
+	if (node.IsRoot()) return "p";
 	std::string result;
-	result += std::to_string(node.GetId().value);
-	result += ": ";
-	if (!node.IsRoot()) {
-		for (auto& i : node.GetFirstParent().GetMutations()) {
-			result += i.GetMutatedNucleotide();
-		}
-	} else {
-		for (auto& i : edge.GetMutations()) {
-			result += i.GetParentNucleotide();
-		}
-	}
-	return result;
-}
-
-void ToDOT(HistoryDAG& dag, std::ostream& out) {
-	out << "digraph {\n";
-	for (auto i : dag.GetEdges()) {
-		std::string parent = ToString(i.GetParent(), i);
-		std::string child = ToString(i.GetChild(), i);
-		out << "  \"" << parent << "\" -> \"" << child << "\"\n";
-	}
-	out << "}\n";
-}
-
-static std::string ToString(Node node, Edge edge, const LeafSet& leaf_set) {
-	std::string result;
-	if (!node.IsRoot()) {
-		for (auto& i : node.GetFirstParent().GetMutations()) {
-			result += i.GetMutatedNucleotide();
-		}
-	} else {
-		return "p";
-		for (auto& i : edge.GetMutations()) {
-			result += i.GetParentNucleotide();
-		}
+	
+	for (auto& i : node.GetFirstParent().GetMutations()) {
+		result += std::to_string(i.GetPosition().value);
+		result += i.GetMutatedNucleotide();
 	}
 
 	result += " [";
@@ -147,6 +117,7 @@ static std::string ToString(Node node, Edge edge, const LeafSet& leaf_set) {
 		bool remove_leaf_sep = false;
 		for (auto leaf : clade) {
 			for (auto& i : leaf.GetFirstParent().GetMutations()) {
+				result += std::to_string(i.GetPosition().value);
 				result += i.GetMutatedNucleotide();
 			}
 			result += ",";
@@ -165,8 +136,8 @@ static std::string ToString(Node node, Edge edge, const LeafSet& leaf_set) {
 void ToDOT(HistoryDAG& dag, const LeafSet& leaf_set, std::ostream& out) {
 	out << "digraph {\n";
 	for (auto i : dag.GetEdges()) {
-		std::string parent = ToString(i.GetParent(), i, leaf_set);
-		std::string child = ToString(i.GetChild(), i, leaf_set);
+		std::string parent = ToString(i.GetParent(), leaf_set);
+		std::string child = ToString(i.GetChild(), leaf_set);
 		out << "  \"" << parent << "\" -> \"" << child << "\"\n";
 	}
 	out << "}\n";

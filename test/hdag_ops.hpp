@@ -12,5 +12,4 @@ HistoryDAG GenerateBinaryTree();
 
 void PrintDag(HistoryDAG& dag);
 
-void ToDOT(HistoryDAG& dag, std::ostream& out);
 void ToDOT(HistoryDAG& dag, const LeafSet& leaf_set, std::ostream& out);

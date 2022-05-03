@@ -23,6 +23,8 @@ public:
 	NodeType GetParent() const;
 	NodeType GetChild() const;
 	CladeIdx GetClade() const;
+	bool IsRoot() const;
+	bool IsLeaf() const;
 	CollectionOf<Mutation> auto GetMutations() const;
     double GetProbability() const;
 	const auto& GetWeight() const;

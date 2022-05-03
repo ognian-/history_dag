@@ -33,6 +33,16 @@ template <typename T>
 CladeIdx EdgeView<T>::GetClade() const { return GetStorage().clade_; }
 
 template <typename T>
+bool EdgeView<T>::IsRoot() const {
+    return GetParent().IsRoot();
+}
+
+template <typename T>
+bool EdgeView<T>::IsLeaf() const {
+    return GetChild().IsLeaf();
+}
+
+template <typename T>
 CollectionOf<Mutation> auto EdgeView<T>::GetMutations() const {
     return std::views::all(dag_.edges_mutations_[id_.value]);
 }

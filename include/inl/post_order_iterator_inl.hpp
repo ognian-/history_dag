@@ -28,7 +28,7 @@ PostOrderIterator<NodeType>& PostOrderIterator<NodeType>::operator++() {
     EdgeType top = stack_.top();
     auto sibling = top.FindNextSibling();
 
-    if (top.GetParent().IsRoot() && not sibling) {
+    if (top.IsRoot() && not sibling) {
         visit_root_ = true;
         return *this;
     }
@@ -64,7 +64,7 @@ bool PostOrderIterator<NodeType>::operator!=(
 
 template <typename NodeType>
 void PostOrderIterator<NodeType>::PushToNextLeaf() {
-    while (not stack_.top().GetChild().IsLeaf()) {
+    while (not stack_.top().IsLeaf()) {
         stack_.push(*stack_.top().GetChild().GetChildren().begin());
     }
 }

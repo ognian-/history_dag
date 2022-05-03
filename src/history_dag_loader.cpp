@@ -90,7 +90,7 @@ HistoryDAG LoadHistoryDAGFromJsonGZ(const std::string& path) {
     result.BuildConnections();
 
     for (MutableEdge i : result.TraversePreOrder()) {
-        if (i.GetParent().IsRoot()) continue;
+        if (i.IsRoot()) continue;
         auto parent_muts = i.GetParent().GetFirstParent().GetMutations();
         std::set<Mutation> mut_set;
         mut_set.insert(parent_muts.begin(), parent_muts.end());

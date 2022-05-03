@@ -19,3 +19,9 @@ TraverseValue<T>::operator Node() const { return GetNode(); }
 
 template <HistoryDAGReference T>
 TraverseValue<T>::operator Edge() const { return GetEdge(); }
+
+template <HistoryDAGReference T>
+bool TraverseValue<T>::IsRoot() const { return GetNode().IsRoot(); }
+
+template <HistoryDAGReference T>
+bool TraverseValue<T>::IsLeaf() const { return GetNode().IsLeaf(); }

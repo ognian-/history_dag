@@ -83,6 +83,15 @@ static void test_two_merges() {
     tree2.AddEdge({3}, {4}, {3}, {1}).SetMutations(muts3 | std::views::all);
     tree2.BuildConnections();
 
+    // HistoryDAG merged0 = Merge({tree0});
+    // ToDOT(merged0, LeafSet(merged0), std::cout);
+
+    // HistoryDAG merged1 = Merge({tree1});
+    // ToDOT(merged1, LeafSet(merged1), std::cout);
+
+    // HistoryDAG merged2 = Merge({tree2});
+    // ToDOT(merged2, LeafSet(merged2), std::cout);
+
     HistoryDAG merged = Merge({tree0, tree1, tree2});
     ToDOT(merged, LeafSet(merged), std::cout);
 }
