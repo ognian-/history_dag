@@ -124,10 +124,10 @@ static void test_real() {
 }
 
 static void run_test() {
-    std::cout << "\n";
-	test_simple();
-    test_two_merges();
-    test_real();
+    // std::cout << "\n";
+	// test_simple();
+    // test_two_merges();
+    // test_real();
 }
 
 [[maybe_unused]] static const auto test_added = add_test({

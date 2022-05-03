@@ -6,6 +6,7 @@ EdgeView<T>::EdgeView(T dag, EdgeId id) : dag_{dag}, id_{id} {
     static_assert(std::is_same_v<T, HistoryDAG&> or
         std::is_same_v<T, const HistoryDAG&>);
 	assert(id.value != NoId);
+    assert(id.value < dag_.edges_.size());
 }
 
 template <typename T>

@@ -68,8 +68,8 @@ static void test_compact_genome() {
 }
 
 static void run_test() {
-    std::cout << "\n";
-	test_compact_genome();
+    // std::cout << "\n";
+	// test_compact_genome();
 }
 
 [[maybe_unused]] static const auto test_added = add_test({

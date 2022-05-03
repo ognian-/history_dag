@@ -25,8 +25,8 @@ HistoryDAG LoadHistoryDAGFromProtobufGZ(const std::string& path) {
             std::ignore = label;
             std::ignore = branch_length;
         }, [&dag, &edge_id, &num_children](size_t parent, size_t child) {
-            dag.AddEdge({edge_id++}, dag.GetNode({parent}),
-                dag.GetNode({child}), {num_children[parent]++});
+            dag.AddEdge({edge_id++}, {parent}, {child},
+                {num_children[parent]++});
         });
     dag.BuildConnections();
 
