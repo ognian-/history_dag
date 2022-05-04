@@ -89,12 +89,20 @@ public:
 
     NodeKey2() = default;
 
-    NodeKey2(Merge& merge, size_t tree_idx, NodeId node_id);
+    NodeKey2(NodeKey2&&) = default;
+    NodeKey2(const NodeKey2&) = delete;
+
+    NodeKey2(const NodeLabel2* label, std::vector<std::set<const NodeLabel2*>>&& leaf_sets) :
+        label_{label}, leaf_sets_{std::move(leaf_sets)} {}
+
+    NodeKey2 Copy() const {
+        return {label_, std::vector<std::set<const NodeLabel2*>>{leaf_sets_}};
+    }
 
     bool operator==(const NodeKey2& rhs) const {
         if (not label_ and not rhs.label_) return true;
         if (not label_ or not rhs.label_) return false;
-        return *label_ == *rhs.label_ &&
+        return *label_ == *rhs.label_ and
             leaf_sets_ == rhs.leaf_sets_;
     }
 
@@ -143,8 +151,10 @@ template<> struct std::hash<NodeKey2> {
 
 class EdgeKey2 {
 public:
+    EdgeKey2(EdgeKey2&&) = default;
+    
     EdgeKey2(NodeKey2&& parent, NodeKey2&& child, CladeIdx clade) :
-        parent_{parent}, child_{child}, clade_{clade} {}
+        parent_{std::move(parent)}, child_{std::move(child)}, clade_{clade} {}
 
     const NodeKey2& GetParent() const {
         return parent_;
@@ -159,8 +169,8 @@ public:
     }
 
     bool operator==(const EdgeKey2& rhs) const {
-        return parent_ == rhs.parent_ &&
-            child_ == rhs.child_ &&
+        return parent_ == rhs.parent_ and
+            child_ == rhs.child_ and
             clade_ == rhs.clade_;
     }
 
@@ -208,9 +218,11 @@ public:
     HistoryDAG& GetResult();
     const HistoryDAG& GetResult() const;
 
-    const std::vector<std::set<NodeId>>& GetLeafSet(size_t tree_idx, NodeId node_id);
-    const NodeLabel2& GetLabel(size_t tree_idx, NodeId node_id);
-    NodeId GetResultNode(const NodeKey2& key, Node input_node);
+    const std::vector<std::set<NodeId>>& GetLeafSetTask(size_t tree_idx, NodeId node_id);
+    const NodeLabel2& GetLabelTask(size_t tree_idx, NodeId node_id);
+    NodeId GetResultNodeTask(const NodeKey2& key, Node input_node);
+    void MakeResultEdgeTask(size_t tree_idx, EdgeId edge_id);
+    NodeKey2 MakeNodeKeyTask(size_t tree_idx, NodeId node_id);
 
 private:
     std::vector<std::reference_wrapper<const HistoryDAG>> trees_;
