@@ -1,7 +1,6 @@
 #include <vector>
 #include <functional>
 #include <map>
-#include <set>
 #include <unordered_map>
 #include <unordered_set>
 #include <cassert>
@@ -12,6 +11,12 @@ class Merge;
 
 class NodeLabel2 {
 public:
+
+    NodeLabel2() = default;
+    NodeLabel2(NodeLabel2&&) = default;
+    NodeLabel2(const NodeLabel2&) = delete;
+    NodeLabel2& operator=(NodeLabel2&&) = default;
+    NodeLabel2& operator=(const NodeLabel2&) = delete;
 
     void AddChildEdge(CollectionOf<Mutation> auto mutations) {
         for (auto& i : mutations) {
@@ -85,18 +90,23 @@ template<> struct std::hash<NodeLabel2> {
 };
 
 class NodeKey2 {
-public:
-
+private:
     NodeKey2() = default;
-
+public:
     NodeKey2(NodeKey2&&) = default;
     NodeKey2(const NodeKey2&) = delete;
+    NodeKey2& operator=(NodeKey2&&) = default;
+    NodeKey2& operator=(const NodeKey2&) = delete;
 
-    NodeKey2(const NodeLabel2* label, std::vector<std::set<const NodeLabel2*>>&& leaf_sets) :
+    NodeKey2(const NodeLabel2* label, std::vector<std::unordered_set<const NodeLabel2*>>&& leaf_sets) :
         label_{label}, leaf_sets_{std::move(leaf_sets)} {}
 
+    static NodeKey2 UA() {
+        return {};
+    }
+
     NodeKey2 Copy() const {
-        return {label_, std::vector<std::set<const NodeLabel2*>>{leaf_sets_}};
+        return {label_, std::vector<std::unordered_set<const NodeLabel2*>>{leaf_sets_}};
     }
 
     bool operator==(const NodeKey2& rhs) const {
@@ -106,12 +116,12 @@ public:
             leaf_sets_ == rhs.leaf_sets_;
     }
 
-    bool operator<(const NodeKey2& rhs) const {
-        assert(label_ and rhs.label_);
-        if (*label_ < *rhs.label_) return true;
-        if (*rhs.label_ < *label_) return false;
-        return leaf_sets_ < rhs.leaf_sets_;
-    }
+    // bool operator<(const NodeKey2& rhs) const {
+    //     assert(label_ and rhs.label_);
+    //     if (*label_ < *rhs.label_) return true;
+    //     if (*rhs.label_ < *label_) return false;
+    //     return leaf_sets_ < rhs.leaf_sets_;
+    // }
 
     std::string ToString() const {
         if (not label_) return "p";
@@ -132,7 +142,7 @@ public:
 private:
     friend struct std::hash<NodeKey2>;
     const NodeLabel2* label_ = nullptr;
-    std::vector<std::set<const NodeLabel2*>> leaf_sets_;
+    std::vector<std::unordered_set<const NodeLabel2*>> leaf_sets_;
 };
 
 template<> struct std::hash<NodeKey2> {
@@ -151,8 +161,12 @@ template<> struct std::hash<NodeKey2> {
 
 class EdgeKey2 {
 public:
+    EdgeKey2() = delete;
     EdgeKey2(EdgeKey2&&) = default;
-    
+    EdgeKey2(const EdgeKey2&) = delete;
+    EdgeKey2& operator=(EdgeKey2&&) = default;
+    EdgeKey2& operator=(const EdgeKey2&) = delete;
+
     EdgeKey2(NodeKey2&& parent, NodeKey2&& child, CladeIdx clade) :
         parent_{std::move(parent)}, child_{std::move(child)}, clade_{clade} {}
 
@@ -174,13 +188,13 @@ public:
             clade_ == rhs.clade_;
     }
 
-    bool operator<(const EdgeKey2& rhs) const {
-        if (parent_ < rhs.parent_) return true;
-        if (rhs.parent_ < parent_) return false;
-        if (child_ < rhs.child_) return true;
-        if (rhs.child_ < child_) return false;
-        return clade_ < rhs.clade_;
-    }
+    // bool operator<(const EdgeKey2& rhs) const {
+    //     if (parent_ < rhs.parent_) return true;
+    //     if (rhs.parent_ < parent_) return false;
+    //     if (child_ < rhs.child_) return true;
+    //     if (rhs.child_ < child_) return false;
+    //     return clade_ < rhs.clade_;
+    // }
 
     std::string ToString() const {
         std::string result;
@@ -218,7 +232,7 @@ public:
     HistoryDAG& GetResult();
     const HistoryDAG& GetResult() const;
 
-    const std::vector<std::set<NodeId>>& GetLeafSetTask(size_t tree_idx, NodeId node_id);
+    const std::vector<std::unordered_set<NodeId>>& GetLeafSetTask(size_t tree_idx, NodeId node_id);
     const NodeLabel2& GetLabelTask(size_t tree_idx, NodeId node_id);
     NodeId GetResultNodeTask(const NodeKey2& key, Node input_node);
     void MakeResultEdgeTask(size_t tree_idx, EdgeId edge_id);
@@ -227,7 +241,7 @@ public:
 private:
     std::vector<std::reference_wrapper<const HistoryDAG>> trees_;
     std::vector<std::vector<NodeLabel2>> all_labels_;
-    std::vector<std::vector<std::vector<std::set<NodeId>>>> all_leaf_sets_;
+    std::vector<std::vector<std::vector<std::unordered_set<NodeId>>>> all_leaf_sets_;
     std::unordered_map<NodeKey2, NodeId> result_nodes_;
     std::unordered_set<EdgeKey2> result_edges_;
     HistoryDAG result_;

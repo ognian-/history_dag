@@ -18,10 +18,10 @@ void Merge::Run() {
     result_.BuildConnections();
 }
 
-const std::vector<std::set<NodeId>>& Merge::GetLeafSetTask(size_t tree_idx, NodeId node_id) {
+const std::vector<std::unordered_set<NodeId>>& Merge::GetLeafSetTask(size_t tree_idx, NodeId node_id) {
     assert(tree_idx < all_leaf_sets_.size());
     assert(node_id.value < all_leaf_sets_.at(tree_idx).size());
-    std::vector<std::set<NodeId>>& result =
+    std::vector<std::unordered_set<NodeId>>& result =
         all_leaf_sets_.at(tree_idx).at(node_id.value);
     if (not result.empty()) return result;
     Node node = trees_.at(tree_idx).get().GetNode(node_id);
@@ -68,7 +68,7 @@ NodeId Merge::GetResultNodeTask(const NodeKey2& key, Node input_node) {
         result_nodes_.emplace_hint(i, key.Copy(), id);
 
         if (input_node.IsRoot()) {
-            if (result_edges_.emplace(NodeKey2{}, key.Copy(), CladeIdx{0}).second) {
+            if (result_edges_.emplace(NodeKey2::UA(), key.Copy(), CladeIdx{0}).second) {
                 result_.AddEdge({result_.GetEdges().size()},
                     ua_.GetId(), id, {0})
                     .SetMutations((*input_node.GetChildren().begin()).GetMutations() |
@@ -105,10 +105,10 @@ void Merge::MakeResultEdgeTask(size_t tree_idx, EdgeId edge_id) {
 
 NodeKey2 Merge::MakeNodeKeyTask(size_t tree_idx, NodeId node_id) {
     auto& leaf_set = GetLeafSetTask(tree_idx, node_id);
-    std::vector<std::set<const NodeLabel2*>> leaf_sets;
+    std::vector<std::unordered_set<const NodeLabel2*>> leaf_sets;
     leaf_sets.reserve(leaf_set.size());
     for (auto& i : leaf_set) {
-        std::set<const NodeLabel2*> set;
+        std::unordered_set<const NodeLabel2*> set;
         for (auto j : i) set.insert(&GetLabelTask(tree_idx, j));
         leaf_sets.emplace_back(std::move(set));
     }
