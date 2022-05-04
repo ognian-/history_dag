@@ -1,8 +1,11 @@
 #include "merge_functional.hpp"
 
 #include <iostream>
+#include <valgrind/callgrind.h>
 
 #include "test_common.hpp"
+#include "history_dag_loader.hpp"
+#include "benchmark.hpp"
 
 static void AddMutations(HistoryDAG& dag) {
     std::vector<Mutation> muts;
@@ -117,6 +120,30 @@ static void ToDOT(HistoryDAG& dag, const std::vector<std::vector<std::set<NodeId
 	out << "}\n";
 }
 
+static std::vector<std::vector<std::set<NodeId>>> GetLeafset(const HistoryDAG& dag) {
+    std::vector<std::vector<std::set<NodeId>>> leaf_sets;
+    leaf_sets.reserve(dag.GetNodes().size());
+    for (Node i : dag.TraversePostOrder()) {
+        for (auto clade : i.GetClades()) {
+            for (auto child : clade) {
+                auto& cs = GetOrInsert(GetOrInsert(leaf_sets, i.GetId()),
+                    child.GetClade().value);
+                if (child.IsLeaf()) {
+                    cs.insert(child.GetChild().GetId());
+                } else {
+                    auto& clades =
+                        leaf_sets.at(child.GetChild().GetId().value);
+                    for (auto& leafs : clades) {
+                        cs.insert(std::begin(leafs), std::end(leafs));
+                    }
+                }
+            }
+        }
+    }
+    return leaf_sets;
+}
+
+[[maybe_unused]]
 static void test_merge_functional() {
     HistoryDAG lhs = GenerateBinaryTree();
 
@@ -126,12 +153,43 @@ static void test_merge_functional() {
 
     merge.Run();
 
-    ToDOT(merge.GetResult(), merge.GetResultLeafSet(), std::cout);
+    ToDOT(merge.GetResult(), GetLeafset(merge.GetResult()), std::cout);
+}
+
+[[maybe_unused]]
+static void test_real() {
+    HistoryDAG correct_result =
+        LoadHistoryDAGFromJsonGZ("data/merge_result.json.gz");
+    HistoryDAG source =
+        LoadHistoryDAGFromProtobufGZ("data/1final-tree-1.nh4.pb.gz");
+    HistoryDAG reference =
+        LoadHistoryDAGFromProtobufGZ("data/1final-tree-1.nh1.pb.gz");
+    Benchmark merge_time;
+    merge_time.start();
+    CALLGRIND_START_INSTRUMENTATION;
+    Merge merged{{reference, source}};
+    merged.Run();
+    CALLGRIND_STOP_INSTRUMENTATION;
+    merge_time.stop();
+    std::cout << "\nDAGs merged in " << merge_time.durationMs() << " ms\n";
+
+    std::cout << "Source nodes: " << source.GetNodes().size() << "\n";
+    std::cout << "Source edges: " << source.GetEdges().size() << "\n\n";
+
+    std::cout << "Reference nodes: " << reference.GetNodes().size() << "\n";
+    std::cout << "Reference edges: " << reference.GetEdges().size() << "\n\n";
+
+    std::cout << "Correct nodes: " << correct_result.GetNodes().size() << "\n";
+    std::cout << "Correct edges: " << correct_result.GetEdges().size() << "\n\n";
+
+    std::cout << "Merged nodes: " << merged.GetResult().GetNodes().size() << "\n";
+    std::cout << "Merged edges: " << merged.GetResult().GetEdges().size() << "\n";  
 }
 
 static void run_test() {
     std::cout << "\n";
-	test_merge_functional();
+	// test_merge_functional();
+    test_real();
 }
 
 [[maybe_unused]] static const auto test_added = add_test({

@@ -1,11 +1,11 @@
-#include <cassert>
-
 NodeKey2::NodeKey2(Merge& merge, size_t tree_idx, NodeId node_id) :
-    label_{merge.GetLabel(tree_idx, node_id)} {
-    for (auto& i : merge.GetLeafSet(tree_idx, node_id)) {
-        std::set<NodeLabel2> set;
-        for (auto j : i) set.insert(merge.GetLabel(tree_idx, j));
-        leaf_sets_.push_back(set);
+    label_{&merge.GetLabel(tree_idx, node_id)} {
+    auto& leaf_set = merge.GetLeafSet(tree_idx, node_id);
+    leaf_sets_.reserve(leaf_set.size());
+    for (auto& i : leaf_set) {
+        std::set<const NodeLabel2*> set;
+        for (auto j : i) set.insert(&merge.GetLabel(tree_idx, j));
+        leaf_sets_.emplace_back(std::move(set));
     }
 }
 
@@ -30,34 +30,16 @@ void Merge::Run() {
                 edge.GetClade()};
             auto i = result_edges_.find(key);
             if (i == result_edges_.end()) {
-                result_edges_.insert(key);
                 result_.AddEdge({result_.GetEdges().size()},
                     GetResultNode(key.GetParent(), edge.GetParent()),
                     GetResultNode(key.GetChild(), edge.GetChild()),
                     key.GetClade())
                     .SetMutations(edge.GetMutations());
+                result_edges_.emplace_hint(i, std::move(key));
             }
         }
     }
     result_.BuildConnections();
-    result_leaf_set_.reserve(result_.GetNodes().size());
-    for (Node i : result_.TraversePostOrder()) {
-        for (auto clade : i.GetClades()) {
-            for (auto child : clade) {
-                auto& cs = GetOrInsert(GetOrInsert(result_leaf_set_, i.GetId()),
-                    child.GetClade().value);
-                if (child.IsLeaf()) {
-                    cs.insert(child.GetChild().GetId());
-                } else {
-                    auto& clades =
-                        result_leaf_set_.at(child.GetChild().GetId().value);
-                    for (auto& leafs : clades) {
-                        cs.insert(std::begin(leafs), std::end(leafs));
-                    }
-                }
-            }
-        }
-    }
 }
 
 const std::vector<std::set<NodeId>>& Merge::GetLeafSet(size_t tree_idx, NodeId node_id) {
@@ -76,7 +58,7 @@ const std::vector<std::set<NodeId>>& Merge::GetLeafSet(size_t tree_idx, NodeId n
         }
         auto& leafs = GetLeafSet(tree_idx, child.GetId());
         if (leafs.size() > result.size()) result.resize(leafs.size());
-        for (size_t i = 0; i < result.size(); ++i) {
+        for (size_t i = 0; i < leafs.size(); ++i) {
             result.at(i).insert(leafs.at(i).begin(), leafs.at(i).end());
         }
     }
@@ -107,10 +89,10 @@ NodeId Merge::GetResultNode(const NodeKey2& key, Node input_node) {
     NodeId id;
     if (i == result_nodes_.end()) {
         id = result_.AddNode({result_.GetNodes().size()}).GetId();
-        result_nodes_.insert(i, {key, id});
+        result_nodes_.emplace_hint(i, key, id);
 
         if (input_node.IsRoot()) {
-            if (result_edges_.insert({NodeKey2{}, key, {0}}).second) {
+            if (result_edges_.emplace(NodeKey2{}, NodeKey2{key}, CladeIdx{0}).second) {
                 result_.AddEdge({result_.GetEdges().size()},
                     ua_.GetId(), id, {0})
                     .SetMutations((*input_node.GetChildren().begin()).GetMutations() |
@@ -125,10 +107,6 @@ NodeId Merge::GetResultNode(const NodeKey2& key, Node input_node) {
     }
     
     return id;
-}
-
-const std::vector<std::vector<std::set<NodeId>>>& Merge::GetResultLeafSet() const {
-    return result_leaf_set_;
 }
 
 HistoryDAG& Merge::GetResult() { return result_; }
