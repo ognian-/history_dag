@@ -44,11 +44,6 @@ bool EdgeView<T>::IsLeaf() const {
 }
 
 template <typename T>
-CollectionOf<Mutation> auto EdgeView<T>::GetMutations() const {
-    return std::views::all(dag_.edges_mutations_[id_.value]);
-}
-
-template <typename T>
 double EdgeView<T>::GetProbability() const {
     return GetStorage().probability_;
 }
@@ -72,21 +67,6 @@ std::optional<EdgeView<T>> EdgeView<T>::FindNextSibling() const {
         }
     }
     return std::nullopt;
-}
-
-template <typename T>
-void EdgeView<T>::SetMutations(CollectionOf<Mutation> auto mutations) {
-    auto& storage = GetOrInsert(dag_.edges_mutations_, id_);
-    storage.assign(std::begin(mutations), std::end(mutations));
-    std::ranges::sort(storage, [](const Mutation& lhs, const Mutation& rhs) {
-        return lhs < rhs;
-    });
-    std::ranges::unique(storage);
-}
-
-template <typename T>
-void EdgeView<T>::ClearMutations() {
-    GetOrInsert(dag_.edges_mutations_, id_).clear();
 }
 
 template <typename T>

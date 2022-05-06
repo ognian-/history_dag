@@ -67,6 +67,5 @@ CounterMap<HistoryDAG::Weight> HistoryDAG::WeightCount(
 	LeafFunc<HistoryDAG::Weight> auto&& /*leaf_func*/,
 	EdgeWeightFunc<HistoryDAG::Weight> auto&& /*edge_weight_func*/,
 	AccumFunc<Weight> auto&& /*accum_func*/) {
-	// TODO implement
 	return {};
 }

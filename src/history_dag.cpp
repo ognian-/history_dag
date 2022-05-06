@@ -18,7 +18,6 @@ MutableEdge HistoryDAG::AddEdge(EdgeId id, NodeId parent, NodeId child,
 	storage.parent_ = parent;
 	storage.child_ = child;
 	storage.clade_ = clade;
-	[[maybe_unused]] auto& mutations = GetOrInsert(edges_mutations_, id);
 	return {*this, id};
 }
 

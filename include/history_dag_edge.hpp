@@ -25,13 +25,10 @@ public:
 	CladeIdx GetClade() const;
 	bool IsRoot() const;
 	bool IsLeaf() const;
-	CollectionOf<Mutation> auto GetMutations() const;
     double GetProbability() const;
 	const auto& GetWeight() const;
 	std::optional<EdgeView> FindNextSibling() const;
-
-	void SetMutations(CollectionOf<Mutation> auto mutations);
-    void ClearMutations();
+	
 private:
 	template <typename U> friend bool operator==(EdgeView<U>, EdgeView<U>);
 	const auto& GetStorage() const;

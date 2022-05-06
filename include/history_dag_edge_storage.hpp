@@ -1,6 +1,6 @@
 #pragma once
 
-#include "mutation.hpp"
+#include "history_dag_common.hpp"
 
 template <typename Weight>
 class EdgeStorage {

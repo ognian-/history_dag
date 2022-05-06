@@ -31,7 +31,6 @@ public:
 	void AddParentEdge(Edge edge);
 	void AddChildEdge(Edge edge);
 	void RemoveParentEdge(Edge edge);
-	auto BuildMutsRelReference() const;
 private:
 	template <typename U> friend bool operator==(NodeView<U>, NodeView<U>);
 	template <typename> friend class NodeView;
