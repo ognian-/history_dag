@@ -6,56 +6,42 @@
 
 #include "history_dag_loader.hpp"
 #include "zlib_stream.hpp"
-#include "proto/parsimony.pb.h"
+#include "proto/dag.pb.h"
 #include "newick.hpp"
 
-HistoryDAG LoadHistoryDAGFromProtobufGZ(const std::string& path) {
+HistoryDAG LoadHistoryDAGFromProtobufGZ(const std::string& path, std::vector<CompactGenome>& mutations) {
     std::ifstream in_compressed(path.c_str());
     assert(in_compressed);
     zlib::ZStringBuf zbuf(in_compressed, 1, 128 * 1024 * 1024);
     std::istream in(&zbuf);
-    Parsimony::data data;
+    DAG::data data;
     data.ParseFromIstream(&in);
     HistoryDAG dag;
-    size_t edge_id = 0;
-    std::unordered_map<size_t, size_t> num_children;
-    ParseNewick(data.newick(), [&dag](size_t id, std::string label,
-        std::optional<double> branch_length) {
-            dag.AddNode({id});
-            std::ignore = label;
-            std::ignore = branch_length;
-        }, [&dag, &edge_id, &num_children](size_t parent, size_t child) {
-            dag.AddEdge({edge_id++}, {parent}, {child},
-                {num_children[parent]++});
-        });
-    dag.BuildConnections();
 
-    // size_t muts_idx = 0;
-    // for (MutableNode node : dag.TraversePreOrder()) {
-    //     const auto& muts = data.node_mutations()[muts_idx++];
-    //     if (node.IsRoot()) continue;
-    //     node.GetSingleParent().SetMutations(muts.mutation() |
-    //         std::views::transform([](auto& mut) -> Mutation {
-    //             static const char decode[] = {'A', 'C', 'G', 'T'};
-    //             assert(mut.mut_nuc().size() == 1);
-    //             return {
-    //                 {static_cast<size_t>(mut.position())},
-    //                 decode[mut.par_nuc()],
-    //                 decode[mut.mut_nuc()[0]]
-    //             };
-    //         }));
-    // }
-
-    std::unordered_map<std::string, std::vector<std::string>> condensed_nodes;
-    for (auto& i : data.condensed_nodes()) {
-        condensed_nodes[i.node_name()] = {i.condensed_leaves().begin(),
-            i.condensed_leaves().end()};
+    for (auto& i : data.node_names()) {
+        dag.AddNode({static_cast<size_t>(i.node_id())});
     }
 
-    std::vector<std::vector<std::string>> metadata;
-    for (auto& i : data.metadata()) {
-        metadata.push_back({i.clade_annotations().begin(),
-            i.clade_annotations().end()});
+    size_t edge_id = 0;
+    for (auto& i : data.edges()) {
+        dag.AddEdge(
+            {edge_id++},
+            {static_cast<size_t>(i.parent_node())},
+            {static_cast<size_t>(i.child_node())},
+            {static_cast<size_t>(i.parent_clade())});
+    }
+
+    dag.BuildConnections();
+
+    mutations.resize(dag.GetEdges().size());
+    edge_id = 0;
+    for (auto& i : data.edges()) {
+        CompactGenome& cg = mutations.at(edge_id++);
+        for (auto& mut : i.edge_mutations()) {
+            static const char decode[] = {'A', 'C', 'G', 'T'};
+            assert(mut.mut_nuc().size() == 1);
+            cg[mut.position()] = decode[mut.mut_nuc()[0]];
+        }
     }
 
     return dag;
@@ -139,14 +125,12 @@ static CompactGenome GetCompactGenome(const nlohmann::json& json, size_t compact
 static LeafSet GetLeafSet(const nlohmann::json& json, size_t node_index) {
 	LeafSet result;
 	for (auto& clade : json["nodes"][node_index][1]) {
-		std::vector<CompactGenome> leafs;
+		std::set<CompactGenome> leafs;
 		for (size_t leaf : clade) {
-			leafs.push_back(GetCompactGenome(json, leaf));
+			leafs.insert(GetCompactGenome(json, leaf));
 		}
-		std::sort(leafs.begin(), leafs.end());
-		result.push_back(leafs);
+		result.insert(leafs);
 	}
-	std::sort(result.begin(), result.end());
 	return result;
 }
 

@@ -12,7 +12,7 @@
 #include "history_dag.hpp"
 
 using CompactGenome = std::map<size_t, char>;
-using LeafSet = std::vector<std::vector<CompactGenome>>;
+using LeafSet = std::set<std::set<CompactGenome>>;
 using NodeLabel = std::pair<CompactGenome, LeafSet>;
 using EdgeLabel = std::tuple<NodeLabel, NodeLabel, CladeIdx>;
 
@@ -43,4 +43,4 @@ private:
     HistoryDAG result_;
 };
 
-#include "inl/merge_functional_inl.hpp"
+#include "inl/merge_inl.hpp"

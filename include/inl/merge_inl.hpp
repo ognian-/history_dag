@@ -2,9 +2,9 @@ Merge::Merge(const std::string& refseq,
     std::vector<std::reference_wrapper<const HistoryDAG>>&& trees,
     const std::vector<std::vector<NodeLabel>>& labels) :
         refseq_{refseq}, trees_{std::move(trees)}, labels_{labels} {
-    assert(labels_.size() == trees_.size());
+    assert(labels_.size() >= trees_.size());
     for (size_t tree_idx = 0; tree_idx < trees_.size(); ++tree_idx) {
-        assert(labels_.at(tree_idx).size() == trees_.at(tree_idx).get().GetNodes().size());
+        assert(labels_.at(tree_idx).size() >= trees_.at(tree_idx).get().GetNodes().size());
     }
 }
 
