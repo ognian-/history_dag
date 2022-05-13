@@ -6,7 +6,7 @@
 
 #include "history_dag_loader.hpp"
 #include "zlib_stream.hpp"
-#include "proto/dag.pb.h"
+#include "dag.pb.h"
 #include "newick.hpp"
 
 HistoryDAG LoadHistoryDAGFromProtobufGZ(const std::string& path, std::vector<CompactGenome>& mutations) {
