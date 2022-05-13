@@ -21,6 +21,8 @@ const NodeLabel& Merge::GetNodeLabel(size_t tree_idx, NodeId node_id) {
     return labels_.at(tree_idx).at(node_id.value);
 }
 
+#include <iostream>
+
 NodeId Merge::GetResultNode(const NodeLabel& label) {
     auto i = result_nodes_.find(label);
     NodeId id;
