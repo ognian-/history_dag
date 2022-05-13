@@ -3,32 +3,34 @@
 Requirements
 ------------
 
-* GCC 11.1
-* GNU make
-* pkgconfig
+* GCC 7.5
+* cmake 3.11
 * protobuf libraries and compiler
 * zlib
 
-For Ubuntu 20.04 LTS the following commands installs the requirements and performs a full build:
+For Ubuntu 18.04 LTS the following commands installs the requirements:
 
-`sudo add-apt-repository ppa:ubuntu-toolchain-r/test`
+`sudo apt get install make g++ protobuf-compiler libprotobuf-dev zlib1g-dev`
 
-`sudo apt get install libasan6 libubsan1 make git g++-11 pkgconf protobuf-compiler libprotobuf-dev zlib1g-dev`
+To get a recent cmake, download from `https://cmake.org/download/`, for example:
 
-`make CXX=g++-11 -j16`
+`wget https://github.com/Kitware/CMake/releases/download/v3.23.1/cmake-3.23.1-linux-x86_64.tar.gz`
 
 Building
 --------
 
-Executing `make` will build and run the tests.
+`mkdir build`
 
-Address and UB sanitizers can be disabled by `make SANITIZE=no`. Disabling them may be helpful if *asan* and *ubsan* libraries are not available on the system.
+`cd build`
 
-Valgrind's *memcheck* can be conveniently called by `make MEMCHECK=yes`. This option disables sanitizers, and `make clean` should be run first if there is an existing build with sanitizers enabled.
+`cmake ..`
 
-Passing *nocatch* to the tests executable will allow exceptions to escape, which is useful for debugging. A gdb session can be started with `gdb --args ./out/history-dag-test nocatch`.
+`make -j16`
+
+Passing *nocatch* to the tests executable will allow exceptions to escape, which is useful for debugging. A gdb session can be started with `gdb --args build/larch nocatch`.
 
 Third-party 
 -----------
 
 * Lohmann, N. (2022). JSON for Modern C++ (Version 3.10.5) [Computer software]. https://github.com/nlohmann
+* Eric Niebler. Range library for C++14/17/20. https://github.com/ericniebler/range-v3

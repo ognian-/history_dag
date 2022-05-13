@@ -2,7 +2,6 @@
 
 #include <iostream>
 #include <fstream>
-#include <valgrind/callgrind.h>
 
 #include "test_common.hpp"
 #include "history_dag_loader.hpp"
