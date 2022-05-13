@@ -6,7 +6,7 @@ PreOrderIterator<NodeType>::PreOrderIterator(NodeType node) {
 }
 
 template <typename NodeType>
-PreOrderIterator<NodeType>::value_type
+typename PreOrderIterator<NodeType>::value_type
 PreOrderIterator<NodeType>::operator*() const {
     assert(not stack_.empty());
     EdgeType top = stack_.top();

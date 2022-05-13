@@ -7,7 +7,7 @@ PostOrderIterator<NodeType>::PostOrderIterator(NodeType node) {
 }
 
 template <typename NodeType>
-PostOrderIterator<NodeType>::value_type
+typename PostOrderIterator<NodeType>::value_type
 PostOrderIterator<NodeType>::operator*() const {
     assert(not stack_.empty());
     EdgeType top = stack_.top();

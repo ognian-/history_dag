@@ -43,13 +43,13 @@ auto NodeView<T>::GetChildren() const {
 }
 
 template <typename T>
-NodeView<T>::EdgeType NodeView<T>::GetSingleParent() const {
+typename NodeView<T>::EdgeType NodeView<T>::GetSingleParent() const {
 	assert(GetParents().size() == 1);
 	return *GetParents().begin();
 }
 
 template <typename T>
-NodeView<T>::EdgeType NodeView<T>::GetFirstParent() const {
+typename NodeView<T>::EdgeType NodeView<T>::GetFirstParent() const {
 	assert(GetParents().size() > 0);
 	return *GetParents().begin();
 }

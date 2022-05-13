@@ -29,7 +29,7 @@ add_executable(larch
     test/main.cpp
     test/test_merge.cpp)
 
-target_compile_options(larch PUBLIC -std=c++20 -Werror -Wall -Wextra -pedantic -pedantic-errors)
+target_compile_options(larch PUBLIC -std=c++17 -Werror -Wall -Wextra -pedantic -pedantic-errors)
 target_include_directories(larch PUBLIC include test ${CMAKE_CURRENT_BINARY_DIR} ${CMAKE_CURRENT_BINARY_DIR}/range-v3/install/include)
 target_link_libraries(larch PUBLIC -lz)
 target_link_libraries(larch PUBLIC nlohmann_json::nlohmann_json)

@@ -21,12 +21,12 @@ template <typename T>
 EdgeId EdgeView<T>::GetId() const { return id_; }
 
 template <typename T>
-EdgeView<T>::NodeType EdgeView<T>::GetParent() const {
+typename EdgeView<T>::NodeType EdgeView<T>::GetParent() const {
     return {dag_, GetStorage().parent_};
 }
 
 template <typename T>
-EdgeView<T>::NodeType EdgeView<T>::GetChild() const {
+typename EdgeView<T>::NodeType EdgeView<T>::GetChild() const {
     return {dag_, GetStorage().child_};
 }
 
