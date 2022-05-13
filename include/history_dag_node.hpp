@@ -21,9 +21,9 @@ public:
 	operator Node() const;
 	T GetDAG() const;
 	NodeId GetId() const;
-	auto GetParents() const -> CollectionOf<EdgeType> auto;
-	auto GetClades() const -> CollectionOfCollections<EdgeType> auto;
-	auto GetChildren() const -> CollectionOf<EdgeType> auto;
+	auto GetParents() const;
+	auto GetClades() const;
+	auto GetChildren() const;
 	EdgeType GetSingleParent() const;
 	EdgeType GetFirstParent() const;
 	bool IsRoot() const;

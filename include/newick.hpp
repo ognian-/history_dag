@@ -3,7 +3,6 @@
 #include <stack>
 #include <vector>
 #include <string>
-#include <ranges>
 #include <optional>
 
 template <typename T, typename N, typename E>
@@ -32,7 +31,7 @@ void ParseNewick(const T& source, N&& on_node, E&& on_edge) {
         }
         std::string branch_length;
         bool have_branch_length = false;
-        for (char i : label | std::views::reverse) {
+        for (char i : label | ranges::views::reverse) {
             if (i == ':') {
                 have_branch_length = true;
                 break;

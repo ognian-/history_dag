@@ -93,7 +93,7 @@ HistoryDAG LoadHistoryDAGFromJsonGZ(const std::string& path, std::string& refseq
         //         j[1][1].get<std::string>()[0]
         //     });
         // }
-        // edge.SetMutations(std::views::all(cg));
+        // edge.SetMutations(ranges::views::all(cg));
     }
     result.BuildConnections();
 
@@ -106,7 +106,7 @@ HistoryDAG LoadHistoryDAGFromJsonGZ(const std::string& path, std::string& refseq
     //     for (auto j : i.GetMutations()) {
     //         if (mut_set.find(j) == mut_set.end()) muts.push_back(j);
     //     }
-    //     i.SetMutations(muts | std::views::all);
+    //     i.SetMutations(muts | ranges::views::all);
     // }
 
     return result;

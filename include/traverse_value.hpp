@@ -2,7 +2,7 @@
 
 #include "history_dag_common.hpp"
 
-template <HistoryDAGReference T>
+template <typename T>
 class TraverseValue {
 public:
 	TraverseValue(T dag, NodeId node, EdgeId edge);

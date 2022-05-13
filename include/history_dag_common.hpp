@@ -3,7 +3,12 @@
 #include <cstddef>
 #include <limits>
 #include <vector>
-#include <ranges>
+#include <range/v3/view/transform.hpp>
+#include <range/v3/view/subrange.hpp>
+#include <range/v3/view/join.hpp>
+#include <range/v3/view/all.hpp>
+#include <range/v3/view/reverse.hpp>
+#include <range/v3/view/ref.hpp>
 
 static constexpr size_t NoId = std::numeric_limits<size_t>::max();
 
@@ -62,21 +67,7 @@ template <typename T, typename Id>
 	}
 }
 
-template <typename T, typename Value>
-concept CollectionOf = std::ranges::view<T>
-	&& std::same_as<std::ranges::range_value_t<T>, Value>;
-
-template <typename T, typename Value>
-concept CollectionOfCollections = std::ranges::view<T> &&
-	std::ranges::view<std::ranges::range_value_t<T>>
-	&& std::same_as<std::ranges::range_value_t<std::ranges::range_value_t<T>>,
-		Value>;
-
 class HistoryDAG;
-
-template <typename T>
-concept HistoryDAGReference = std::same_as<T, HistoryDAG&> or
-	std::same_as<T, const HistoryDAG&>;
 
 template <typename T> class NodeView;
 using Node = NodeView<const HistoryDAG&>;

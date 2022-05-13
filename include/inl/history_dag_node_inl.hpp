@@ -21,25 +21,25 @@ template <typename T>
 NodeId NodeView<T>::GetId() const { return id_; }
 
 template <typename T>
-auto NodeView<T>::GetParents() const -> CollectionOf<EdgeType> auto {
-	return GetStorage().parents_ | std::views::transform([this](EdgeId idx) {
+auto NodeView<T>::GetParents() const {
+	return GetStorage().parents_ | ranges::views::transform([this](EdgeId idx) {
 		return EdgeType{dag_, idx};
 	});
 }
 
 template <typename T>
-auto NodeView<T>::GetClades() const -> CollectionOfCollections<EdgeType> auto {
-	return GetStorage().clades_ | std::views::transform(
+auto NodeView<T>::GetClades() const {
+	return GetStorage().clades_ | ranges::views::transform(
 		[this](const std::vector<EdgeId>& clade) {
-			return clade | std::views::transform([this](EdgeId idx) {
+			return clade | ranges::views::transform([this](EdgeId idx) {
 				return EdgeType{dag_, idx};
 			});
 		});
 }
 
 template <typename T>
-auto NodeView<T>::GetChildren() const -> CollectionOf<EdgeType> auto {
-	return GetClades() | std::views::join;
+auto NodeView<T>::GetChildren() const {
+	return GetClades() | ranges::views::join;
 }
 
 template <typename T>

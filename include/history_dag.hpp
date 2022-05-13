@@ -23,27 +23,12 @@
 #include <algorithm>
 #include <cassert>
 #include <vector>
-#include <ranges>
 #include <string_view>
 
 #include "history_dag_node_storage.hpp"
 #include "history_dag_edge_storage.hpp"
 #include "traverse_value.hpp"
 #include "counter_map.hpp"
-
-template <typename T, typename Weight>
-	concept LeafFunc = std::invocable<T, Node> &&
-		std::convertible_to<std::invoke_result_t<T, Node>, Weight>;
-
-template <typename T, typename Weight>
-	concept EdgeWeightFunc = std::invocable<T, Edge> &&
-		std::convertible_to<std::invoke_result_t<T, Edge>, Weight>;
-
-template <typename T, typename Weight>
-	concept AccumFunc = std::invocable<T,
-		std::ranges::ref_view<std::vector<Weight>>> &&
-		std::convertible_to<std::invoke_result_t<T,
-			std::ranges::ref_view<std::vector<Weight>>>, Weight>;
 
 class HistoryDAG {
 public:
@@ -58,10 +43,10 @@ public:
 
 	void BuildConnections();
 	
-	inline CollectionOf<Node> auto GetNodes() const;
-	inline CollectionOf<MutableNode> auto GetNodes();
-	inline CollectionOf<Edge> auto GetEdges() const;
-	inline CollectionOf<MutableEdge> auto GetEdges();
+	inline auto GetNodes() const;
+	inline auto GetNodes();
+	inline auto GetEdges() const;
+	inline auto GetEdges();
 	
 	Node GetNode(NodeId id) const;
 	MutableNode GetNode(NodeId id);
@@ -71,15 +56,13 @@ public:
 	Node GetRoot() const;
 	MutableNode GetRoot();
 
-	inline CollectionOf<Node> auto GetLeafs() const;
-	inline CollectionOf<MutableNode> auto GetLeafs();
+	inline auto GetLeafs() const;
+	inline auto GetLeafs();
 
-	inline CollectionOf<TraverseValue<const HistoryDAG&>> auto
-		TraversePreOrder() const;
-	inline CollectionOf<TraverseValue<HistoryDAG&>> auto TraversePreOrder();
-	inline CollectionOf<TraverseValue<const HistoryDAG&>> auto
-		TraversePostOrder() const;
-	inline CollectionOf<TraverseValue<HistoryDAG&>> auto TraversePostOrder();
+	inline auto TraversePreOrder() const;
+	inline auto TraversePreOrder();
+	inline auto TraversePostOrder() const;
+	inline auto TraversePostOrder();
 
 	ArbitraryPrecisionInteger CountHistories() const;
 	void WriteProtobuf(std::string_view filename) const;
@@ -88,26 +71,6 @@ public:
 	bool IsCladeTree() const;
     void AddAllAllowedEdges();
 
-	void PostorderHistoryWeightAccumulation(
-		LeafFunc<Weight> auto&& leaf_func,
-		EdgeWeightFunc<Weight> auto&& edge_weight_func,
-		AccumFunc<Weight> auto&& accum_within_clade,
-		AccumFunc<Weight> auto&& accum_between_clade);
-
-	CounterMap<Weight> WeightCount(LeafFunc<Weight> auto&& leaf_func,
-		EdgeWeightFunc<Weight> auto&& edge_weight_func,
-		AccumFunc<Weight> auto&& accum_func);
-
-	Weight OptimalWeightAnnotate(LeafFunc<Weight> auto&& leaf_func,
-		EdgeWeightFunc<Weight> auto&& edge_weight_func,
-		AccumFunc<Weight> auto&& accum_func,
-		AccumFunc<Weight> auto&& optimal_func);
-
-	void TrimOptimalWeight(LeafFunc<Weight> auto&& leaf_func,
-		EdgeWeightFunc<Weight> auto&& edge_weight_func,
-		AccumFunc<Weight> auto&& accum_func,
-		AccumFunc<Weight> auto&& optimal_fun);
-	
 private:
 	template <typename> friend class NodeView;
 	template <typename> friend class EdgeView;

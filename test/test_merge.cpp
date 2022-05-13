@@ -31,7 +31,7 @@ void GetLabels(const HistoryDAG& tree, std::vector<NodeLabel>& labels,
         LeafSet& leaf_set = labels.at(node.GetId().value).second;
         for (auto clade : node.GetClades()) {
             std::set<CompactGenome> clade_leafs;
-            for (Node child : clade | std::views::transform(Transform::GetChild)) {
+            for (Node child : clade | ranges::views::transform(Transform::GetChild)) {
                 if (child.IsLeaf()) {
                     clade_leafs.insert(labels.at(child.GetId().value).first);
                 } else {
