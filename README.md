@@ -27,6 +27,15 @@ Building
 
 `make -j16`
 
+Running
+-------
+
+From the build directory:
+
+`ln -s ../data`
+
+`./larch`
+
 Passing *nocatch* to the tests executable will allow exceptions to escape, which is useful for debugging. A gdb session can be started with `gdb --args build/larch nocatch`.
 
 Third-party 

@@ -40,7 +40,7 @@ HistoryDAG LoadHistoryDAGFromProtobufGZ(const std::string& path, std::vector<Com
         for (auto& mut : i.edge_mutations()) {
             static const char decode[] = {'A', 'C', 'G', 'T'};
             assert(mut.mut_nuc().size() == 1);
-            cg[mut.position()] = decode[mut.mut_nuc()[0]];
+            cg[mut.position()] = decode[mut.mut_nuc().Get(0)];
         }
     }
 
