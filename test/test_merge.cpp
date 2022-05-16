@@ -150,8 +150,21 @@ static void test_case_2() {
     });
 }
 
+static void test_case_ref() {
+    test_protobuf("data/testcaseref/full_dag.json.gz", {
+        "data/testcaseref/tree_0.pb.gz",
+        "data/testcaseref/tree_1.pb.gz",
+        "data/testcaseref/tree_2.pb.gz",
+        "data/testcaseref/tree_3.pb.gz",
+        "data/testcaseref/tree_4.pb.gz",
+    });
+}
+
 [[maybe_unused]] static const auto test0_added = add_test({
 	test_case_2, "Test case 2"});
 
 [[maybe_unused]] static const auto test1_added = add_test({
 	test_five_trees, "Merge 5 trees"});
+
+[[maybe_unused]] static const auto test2_added = add_test({
+	test_case_ref, "Tree with different ref"});

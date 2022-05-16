@@ -43,4 +43,4 @@ private:
     HistoryDAG result_;
 };
 
-#include "inl/merge_inl.hpp"
+#include "impl/merge_impl.hpp"
